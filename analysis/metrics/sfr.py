@@ -34,12 +34,10 @@ quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_10', 'name': None, 'log
 quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_50', 'name': None, 'log10': True})
 quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_200', 'name': None, 'log10': True})
 
-
-
 quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModelI', 'dataset': 'FUV', 'name': None, 'log10': True})
 
 
-properties = ['log10SFRinst/10', 'log10SFR10/50','log10SFR50/200']
+properties = ['log10SFR10/50','log10SFR50/200']
 x_ = ['log10Mstar_30', 'log10FUV']
 
 D = {}
@@ -60,19 +58,19 @@ for tag, z in zip(fl.tags, fl.zeds):
 
 
 
-# --- get default limits and modify them to match the selection range
-
-cmap = {'log10FUV': cm.viridis, 'log10Mstar_30': cm.inferno}
 
 
+# ---- make plot
+
+x = 'log10Mstar_30'
+
+limits = fa.limits
+limits[x][0] = s_limit[x]
+
+fig, axes = fa.linear_redshift_mcol(D, fl.zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno, add_linear_fit = False)
+
+for ax in axes.flatten():
+    ax.axhline(0.0, color='k',lw=2, alpha=0.1)
 
 
-for x, z in zip(x_, x_[::-1]): #the colour map is for the other parameter
-
-    limits = fa.limits
-    limits[x][0] = s_limit[x]
-
-    fig = fa.linear_redshift_mcol(D, fl.zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = z, scatter_cmap = cmap[x], add_linear_fit = False)
-
-    fig.savefig(f'figs/sfr_{x}.pdf')
-    # fig.savefig(f'figs/combined_redshift_{x}.png')
+fig.savefig(f'figs/sfr.pdf')
