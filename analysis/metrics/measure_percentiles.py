@@ -80,7 +80,7 @@ for tag, z in zip(fl.tags, fl.zeds):
 
 
 
-    percentiles = [0.9,0.5,0.1]
+    percentiles = [0.9,0.8,0.5,0.2,0.1]
     for p in percentiles:
         D[z][f'P{p}'] = np.zeros(len(D[z]['log10Mstar_30']))
 

@@ -67,7 +67,7 @@ x = 'log10Mstar_30'
 limits = fa.limits
 limits[x][0] = s_limit[x]
 
-fig, axes = fa.linear_redshift_mcol(D, fl.zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno, add_linear_fit = False)
+fig, axes = fa.linear_redshift_mcol(D, fl.zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno, add_linear_fit = False, height = 2)
 
 for ax in axes.flatten():
     ax.axhline(0.0, color='k',lw=2, alpha=0.1)

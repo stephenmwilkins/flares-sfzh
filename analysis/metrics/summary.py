@@ -61,16 +61,20 @@ limits['log10sSFR'] = [0.26, 1.14]
 limits['log10age'] = [1.71, 2.69]
 limits['log10Z'] = [-3.2, -1.51]
 
+
+
+
+
 left = 0.15
 top = 0.95
 bottom = 0.1
 right = 0.95
 
-fig, axes = plt.subplots(3, 1, figsize = (3.5, 5), sharex = True)
+fig, axes = plt.subplots(2, 1, figsize = (3.5, 5), sharex = True)
 plt.subplots_adjust(left=left, top=top, bottom=bottom, right=right, wspace=0.0, hspace=0.0)
 
 
-for q, ax in zip(['log10sSFR', 'log10age','log10Z'], axes):
+for q, ax in zip(['log10sSFR', 'log10age'], axes):
 
     O = {}
     O['z'] = fl.zeds

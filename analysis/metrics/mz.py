@@ -2,6 +2,8 @@
 import numpy as np
 import matplotlib.cm as cm
 
+import pickle
+
 import flares
 import flares_analysis as fa
 import flare.plt as fplt
@@ -35,10 +37,13 @@ quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10
 quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_100', 'name': None, 'log10': True})
 # quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_200', 'name': None, 'log10': True})
 
-quantities.append({'path': 'Galaxy/StellarAges', 'dataset': 'MassWeightedStellarAge', 'name': 'age', 'log10': True})
+# quantities.append({'path': 'Galaxy/StellarAges', 'dataset': 'MassWeightedStellarAge', 'name': 'age', 'log10': True})
 quantities.append({'path': 'Galaxy/Metallicity', 'dataset': 'MassWeightedStellarZ', 'name': 'Z', 'log10': True})
 
 quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModelI', 'dataset': 'FUV', 'name': None, 'log10': True})
+
+
+Dp = pickle.load(open('percentiles.p','rb'))
 
 
 x_ = ['log10Mstar_30', 'log10FUV']
@@ -54,8 +59,8 @@ for tag, z in zip(fl.tags, fl.zeds):
 
     D[z]['log10sSFR'] = D[z]['log10SFR_100'] - D[z]['log10Mstar_30'] + 9
 
-    # D[z]['log10SFR10/50'] = D[z]['log10SFR_10'] - D[z]['log10SFR_50']
-    # D[z]['log10SFR50/200'] = D[z]['log10SFR_50'] - D[z]['log10SFR_200']
+    D[z]['age'] = Dp[z]['P0.5']*1E3
+    D[z]['log10age'] = np.log10(D[z]['age'])
 
     for x in x_:
         s[x][z] = D[z][x]>s_limit[x]
@@ -67,8 +72,8 @@ for tag, z in zip(fl.tags, fl.zeds):
 cmap = {'log10FUV': cm.viridis, 'log10Mstar_30': cm.inferno}
 
 
-for y in ['log10age', 'log10sSFR', 'log10Z']:
-# for y in ['log10age']:
+# for y in ['log10age', 'log10sSFR', 'log10Z']:
+for y in ['log10age','age']:
 
     print(y)
 
