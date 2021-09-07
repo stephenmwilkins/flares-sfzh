@@ -73,7 +73,7 @@ cmap = {'log10FUV': cm.viridis, 'log10Mstar_30': cm.inferno}
 
 
 # for y in ['log10age', 'log10sSFR', 'log10Z']:
-for y in ['log10age','age']:
+for y in ['log10age','age','log10sSFR']:
 
     print(y)
 
