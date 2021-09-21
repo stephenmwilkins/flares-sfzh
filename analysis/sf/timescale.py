@@ -14,18 +14,13 @@ import flare.plt as fplt
 # ----------------------------------------------------------------------
 # --- open data
 
-fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
+# fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
+fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
 
 s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
 
 
-
-
-
-
 D = pickle.load(open('percentiles.p','rb'))
-
-print(list(D.keys()))
 
 
 for z in D.keys():

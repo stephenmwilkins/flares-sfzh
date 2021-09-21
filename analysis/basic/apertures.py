@@ -9,7 +9,7 @@ import cmasher as cmr
 cmap = cmr.rainforest
 
 import flares
-import flares_analysis
+import flares_analysis as fa
 import flare.plt as fplt
 
 # ----------------------------------------------------------------------
@@ -25,35 +25,38 @@ halo = fl.halos
 tag = fl.tags[-1]  # --- tag 0 = 10
 
 
+t = '50'
 
-
-apertures = [1, 3, 5, 10, 30, 50, 100]
+apertures = fa.apertures
 
 # ----------------------------------------------------------------------
 # --- define quantities to read in [not those for the corner plot, that's done later]
 
 quantities = []
 quantities.append({'path': 'Galaxy', 'dataset': 'Mstar', 'name': None, 'log10': True}) # total
-quantities.append({'path': 'Galaxy', 'dataset': 'SFR', 'name': 'SFR_100', 'log10': True}) # total
+quantities.append({'path': 'Galaxy/SFR_total', 'dataset': f'SFR_{t}_Myr', 'name': 'SFR', 'log10': True}) # total
 
-for r in apertures:
+for r in fa.apertures:
     quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_{r}', 'name': None, 'log10': True})
-    quantities.append({'path': f'Galaxy/SFR_aperture/SFR_{r}', 'dataset': 'SFR_100_Myr', 'name': f'SFR_100_{r}', 'log10': True})
+    quantities.append({'path': f'Galaxy/SFR_aperture/SFR_{r}', 'dataset': f'SFR_{t}_Myr', 'name': f'SFR_{r}', 'log10': True})
 
 
 
 # --- get quantities (and weights and deltas)
-D = flares_analysis.get_datasets(fl, tag, quantities)
+D = fa.get_datasets(fl, tag, quantities)
 
 
-D['log10sSFR_100'] = D['log10SFR_100'] - D['log10Mstar'] + 9. # total
+D['log10sSFR'] = D['log10SFR'] - D['log10Mstar'] + 9. # total
 
-for r in apertures:
-    D[f'log10sSFR_100_{r}'] = D[f'log10SFR_100_{r}'] - D[f'log10Mstar_{r}'] + 9. #aperture based
+for r in fa.apertures:
+    D[f'log10sSFR_{r}'] = D[f'log10SFR_{r}'] - D[f'log10Mstar_{r}'] + 9. #aperture based
 
 
-print(np.min(D['log10SFR_100']), np.max(D['log10SFR_100']))
-print(np.min(D['log10Mstar']), np.max(D['log10Mstar']))
+print(np.min(D['log10SFR']), np.max(D['log10SFR']))
+
+
+for r in fa.apertures:
+    print(np.min(D[f'log10Mstar_{r}']), np.max(D[f'log10Mstar_{r}']))
 
 limits = {}
 limits['log10Mstar'] = [8.05,12]
@@ -63,10 +66,10 @@ labels = {}
 labelss = {} # short label
 labels['log10Mstar'] = r'log_{10}(M_{\star}/M_{\odot})'
 labelss['log10Mstar'] = 'M_{\star}'
-labels['log10SFR_100'] = r'log_{10}(SFR_{100}/M_{\odot}\ yr^{-1})'
-labelss['log10SFR_100'] = 'SFR_{100}'
-labels['log10sSFR_100'] = r'log_{10}(sSFR_{100}/Gyr^{-1})'
-labelss['log10sSFR_100'] = 'sSFR_{100}'
+labels['log10SFR'] = r'log_{10}(SFR_{50}/M_{\odot}\ yr^{-1})'
+labelss['log10SFR'] = 'SFR_{100}'
+labels['log10sSFR'] = r'log_{10}(sSFR_{50}/Gyr^{-1})'
+labelss['log10sSFR'] = 'sSFR_{50}'
 
 
 #
@@ -121,15 +124,15 @@ labelss['log10sSFR_100'] = 'sSFR_{100}'
 
 x = 'log10Mstar'
 
-for y in ['log10Mstar', 'log10SFR_100', 'log10sSFR_100']:
+for y in ['log10Mstar', 'log10SFR', 'log10sSFR']:
 
     fig, ax = fplt.simple_sm(size=2.5)
 
     ax.axhline(0.0, color='k', lw=2, alpha=0.2)
 
-    for i,r in enumerate(apertures):
+    for i,r in enumerate(fa.apertures):
 
-        c = cmap(i/len(apertures))
+        c = cmap(i/len(fa.apertures))
 
         yy = f'{y}_{r}'
 
@@ -167,7 +170,11 @@ for y in ['log10Mstar', 'log10SFR_100', 'log10sSFR_100']:
     ax.legend(fontsize = 7, labelspacing = 0.1)
 
     ax.set_xlim(limits[x])
-    ax.set_ylim([-0.5,0.5])
+
+    if y in ['log10Mstar', 'log10SFR']:
+        ax.set_ylim([-0.99,0.1])
+    if y in ['log10sSFR']:
+        ax.set_ylim([-0.4,0.4])
 
     ax.set_xlabel(rf'$\rm {labels[x]}$', fontsize = 9)
     ax.set_ylabel(rf'$\rm log_{{10}}({labelss[y]}/{labelss[y]}^{{tot}})$', fontsize = 9)

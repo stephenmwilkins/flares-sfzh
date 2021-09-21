@@ -15,7 +15,8 @@ import flare.plt as fplt
 # ----------------------------------------------------------------------
 # --- open data
 
-fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
+# fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
+fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
 # fl.explore()
 
 halo = fl.halos
@@ -24,7 +25,7 @@ halo = fl.halos
 # --- define parameters and tag
 tag = fl.tags[-1]  # --- tag 0 = 10
 
-timescales = [1,5,10,20,50,100,200]
+timescales = [10,30,50,100,200]
 r = 30
 
 # ----------------------------------------------------------------------
@@ -32,12 +33,11 @@ r = 30
 
 quantities = []
 
-quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_{r}', 'name': 'Mstar', 'log10': True})
-
-quantities.append({'path': f'Galaxy/SFR_aperture/SFR_{r}', 'dataset': f'SFR_inst', 'name': False, 'log10': True})
+quantities.append({'path': 'Galaxy', 'dataset': f'Mstar_{r}', 'name': 'Mstar', 'log10': True})
 
 for t in timescales:
-    quantities.append({'path': f'Galaxy/SFR_aperture/SFR_{r}', 'dataset': f'SFR_{t}_Myr', 'name': f'SFR_{t}', 'log10': True})
+    quantities.append({'path': 'Galaxy/SFR', 'dataset': f'SFR_{t}', 'name': None, 'log10': True})
+
 
 
 
@@ -47,11 +47,6 @@ D = fa.get_datasets(fl, tag, quantities)
 # D['log10Mstar'] -= 10. # REMOVE LATER
 
 
-print(np.median(D[f'log10SFR_inst']))
-
-# D[f'log10SFR_inst'] =+ -10
-
-D[f'log10sSFR_inst'] = D[f'log10SFR_inst'] - D[f'log10Mstar']  + 9. #aperture based
 
 for t in timescales:
     D[f'log10sSFR_{t}'] = D[f'log10SFR_{t}'] - D[f'log10Mstar'] + 9. #aperture based
@@ -79,10 +74,6 @@ x = 'log10Mstar'
 
 for y in ['log10SFR', 'log10sSFR']:
 
-    print('--'*20)
-    print(y)
-
-
     fig, ax = fplt.simple_sm(size=2.5)
 
     ax.axhline(0.0, color='k', lw=2, alpha=0.2)
@@ -92,27 +83,24 @@ for y in ['log10SFR', 'log10sSFR']:
         c = cmap(i/len(timescales))
 
         # --- weighted median Lines
-        R = D[f'{y}_{t}']-D[f'{y}_50']
+        R = D[f'{y}_{t}']-D[f'{y}_100']
 
-        print(t, np.min(R), np.median(R), np.max(R))
+        print(np.min(R), np.max(R))
 
         ax = fa.add_median_line(ax, D[x], R, D['weight'], limits[x], c=c, label = rf'$\rm {t}\ Myr $')
 
 
-    R = D[f'{y}_inst']-D[f'{y}_50']
-    print('inst', np.min(R), np.median(R), np.max(R))
-    print(R)
-    ax = fa.add_median_line(ax, D[x], R, D['weight'], limits[x], c='k', label = rf'$\rm instantaneous $')
 
 
 
-    ax.legend(fontsize = 6, labelspacing = 0.05)
+
+    ax.legend(fontsize = 7, labelspacing = 0.1)
 
     ax.set_xlim(limits[x])
-    ax.set_ylim([-0.5,0.3])
+    ax.set_ylim([-0.5,0.5])
     # ax.set_ylim([0, 3])
 
     ax.set_xlabel(rf'$\rm {labels[x]}$', fontsize = 9)
-    ax.set_ylabel(rf'$\rm log_{{10}}({labelss[y]}/{labelss[y]}_{{50}})$', fontsize = 9)
+    ax.set_ylabel(rf'$\rm log_{{10}}({labelss[y]}/{labelss[y]}^{{100}})$', fontsize = 9)
 
-    fig.savefig(f'figs/avgsfr_{y}.pdf')
+    fig.savefig(f'figs/avgsfr_{y}_Aswin.pdf')

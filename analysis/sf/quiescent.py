@@ -12,15 +12,8 @@ import flare.plt as fplt
 # ----------------------------------------------------------------------
 # --- open data
 
-fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
-
-# fl.explore()
-
-halo = fl.halos
-
-# ----------------------------------------------------------------------
-# --- define parameters and tag
-tag = fl.tags[-3]  # --- select tag -3 = z=7
+# fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
+fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
 
 
 limit = 8.5
@@ -33,13 +26,13 @@ limits['log10Mstar_30'][0] = limit
 
 quantities = []
 
-quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
+# quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_30', 'name': None, 'log10': True})
 
-# quantities.append({'path': 'Galaxy', 'dataset': 'SFR_inst_30', 'name': None, 'log10': True})
-# quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_10', 'name': None, 'log10': True})
+
 # quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_50', 'name': None, 'log10': True})
-quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_50', 'name': None, 'log10': True})
-# quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_200', 'name': None, 'log10': True})
+quantities.append({'path': f'Galaxy/SFR_aperture/SFR_30', 'dataset': f'SFR_50_Myr', 'name': f'SFR_50', 'log10': True})
+
 
 
 
@@ -60,7 +53,13 @@ for tag, z in zip(fl.tags, fl.zeds):
     # --- get quantities (and weights and deltas)
     D = fa.get_datasets(fl, tag, quantities)
 
-    log10sSFR = D['log10SFR_50'] - D['log10Mstar_30'] + 9
+    print(np.median(D['log10SFR_50']))
+
+    log10sSFR = D['log10SFR_50'] - D['log10Mstar_30'] + 9 # + 10
+
+
+    print(np.min(log10sSFR),np.median(log10sSFR),np.max(log10sSFR))
+
 
     s = D['log10Mstar_30']>limit
     s_quiescent = log10sSFR<0.0

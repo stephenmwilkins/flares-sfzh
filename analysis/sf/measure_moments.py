@@ -32,15 +32,9 @@ def n_weighted_moment(values, weights, n):
 # ----------------------------------------------------------------------
 # --- open data
 
-fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
+# fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
+fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
 
-# fl.explore()
-
-halo = fl.halos
-
-# ----------------------------------------------------------------------
-# --- define parameters and tag
-tag = fl.tags[-3]  # --- select tag -3 = z=7
 
 
 s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
@@ -50,7 +44,8 @@ s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
 
 quantities = []
 
-quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
+# quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_30', 'name': None, 'log10': True})
 quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModelI', 'dataset': 'FUV', 'name': None, 'log10': True})
 
 

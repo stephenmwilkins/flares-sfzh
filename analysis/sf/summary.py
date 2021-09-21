@@ -4,6 +4,7 @@ import matplotlib as mpl
 import matplotlib.cm as cm
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import pickle
 
 import flares
 import flares_analysis as fa
@@ -12,7 +13,8 @@ import flare.plt as fplt
 # ----------------------------------------------------------------------
 # --- open data
 
-fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
+# fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
+fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
 
 # fl.explore()
 
@@ -24,20 +26,10 @@ fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/fl
 
 quantities = []
 
-quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_30', 'name': None, 'log10': True})
+quantities.append({'path': f'Galaxy/SFR_aperture/SFR_30', 'dataset': f'SFR_50_Myr', 'name': f'SFR_50', 'log10': True})
 
-# quantities.append({'path': 'Galaxy', 'dataset': 'SFR_inst_30', 'name': None, 'log10': True})
-# quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_10', 'name': None, 'log10': True})
-# quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_50', 'name': None, 'log10': True})
-quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_50', 'name': None, 'log10': True})
-# quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_200', 'name': None, 'log10': True})
-
-quantities.append({'path': 'Galaxy/StellarAges', 'dataset': 'MassWeightedStellarAge', 'name': 'age', 'log10': True})
-# quantities.append({'path': 'Galaxy/Metallicity', 'dataset': 'MassWeightedStellarZ', 'name': 'Z', 'log10': True})
-
-quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModelI', 'dataset': 'FUV', 'name': None, 'log10': True})
-
-
+Dp = pickle.load(open('percentiles.p','rb'))
 
 Dz = {}
 
@@ -47,7 +39,8 @@ for tag, z in zip(fl.tags, fl.zeds):
     Dz[z] = fa.get_datasets(fl, tag, quantities)
 
     Dz[z]['log10sSFR'] = Dz[z]['log10SFR_50'] - Dz[z]['log10Mstar_30'] + 9
-
+    Dz[z]['age'] = Dp[z]['P0.5']*1E3
+    Dz[z]['log10age'] = np.log10(Dz[z]['age'])
 
 
 
