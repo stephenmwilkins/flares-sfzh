@@ -80,12 +80,36 @@ plt.subplots_adjust(left=left, top=top, bottom=bottom, right=right, wspace=0.0, 
 
 for q, ax in zip(['log10sSFR', 'log10age'], axes):
 
+
+    # ----
+
+    if q=='log10sSFR':
+
+
+        redshifts = np.arange(5, 15, 0.1)
+
+        ages = flares_utility.analyse.cosmo.age(redshifts).to('Myr').value
+
+        SFR = 5.
+        Mstar = (ages-flares_utility.analyse.cosmo.age(20).to('Myr').value)*SFR*1E6 # technically wrong as no recycling
+        log10sSFR = np.log10(SFR/Mstar)+9
+
+        print(log10sSFR)
+
+        ax.plot(redshifts, log10sSFR, c='k', alpha=0.2, ls='--', label = r'$\rm const\ SF\ since\ z=20$')
+
+
+
+
+
+
+
     print('-'*20, q)
 
     O = {}
     O['z'] = zeds
 
-    log10Mstar_limits = [8.5, 9.5, 10.5]
+    log10Mstar_limits = [9.5, 10.5]
 
     for log10Mstar_limit in log10Mstar_limits:
 
