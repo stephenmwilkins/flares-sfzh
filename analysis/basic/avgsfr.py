@@ -12,37 +12,41 @@ import flares
 import flares_analysis as fa
 import flare.plt as fplt
 
+from flares_utility import analyse
+from flares_utility import stats as flares_stats
+
+import flare.plt as fplt
+
 # ----------------------------------------------------------------------
-# --- open data
+# --- open data and load analyser
+a = analyse.analyse_flares(analyse.flares_master_file, default_tags = False)
 
-fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
-# fl.explore()
-
-halo = fl.halos
+# ----------------------------------------------------------------------
+# --- list datasets (specifically for the 1st sim/tag)
+# a.list_datasets()
 
 # ----------------------------------------------------------------------
 # --- define parameters and tag
-tag = fl.tags[-1]  # --- tag 0 = 10
+tag = a.tags[-1]  # --- tag 0 = 10
+z = a.zed_from_tag[tag] # get redshift of that tag
+print(tag, z, a.tag_from_zed[z]) # print, but also shows how to the tag from zed
 
-timescales = [1,5,10,20,50,100,200]
-r = 30
+
+timescales = [1,5,10,20,50,100,200] # sfr averaging timescales
+r = 30 # radius
 
 # ----------------------------------------------------------------------
 # --- define quantities to read in [not those for the corner plot, that's done later]
-
 quantities = []
-
-quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_{r}', 'name': 'Mstar', 'log10': True})
-
-quantities.append({'path': f'Galaxy/SFR_aperture/SFR_{r}', 'dataset': f'SFR_inst', 'name': False, 'log10': True})
-
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'{r}', 'name': 'Mstar', 'log10': True})
+quantities.append({'path': f'Galaxy/SFR_aperture/{r}', 'dataset': f'inst', 'name': 'SFR_inst', 'log10': True})
 for t in timescales:
-    quantities.append({'path': f'Galaxy/SFR_aperture/SFR_{r}', 'dataset': f'SFR_{t}_Myr', 'name': f'SFR_{t}', 'log10': True})
+    quantities.append({'path': f'Galaxy/SFR_aperture/{r}', 'dataset': f'{t}Myr', 'name': f'SFR_{t}', 'log10': True})
 
 
 
 # --- get quantities (and weights and deltas)
-D = fa.get_datasets(fl, tag, quantities)
+D = a.get_datasets(tag, quantities)
 
 # D['log10Mstar'] -= 10. # REMOVE LATER
 

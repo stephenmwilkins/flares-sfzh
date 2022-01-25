@@ -2,20 +2,9 @@
 import numpy as np
 import matplotlib.cm as cm
 
-import flares
-import flares_analysis as fa
-import flare.plt as fplt
-
-# ----------------------------------------------------------------------
-# --- open data
-
-# fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
-fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
+from load import * # loads flares_analysis as a and defined mass/luminosity limits and tags/zeds
 
 
-
-
-s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
 
 # ----------------------------------------------------------------------
 # --- define quantities to read in [not those for the corner plot, that's done later]
@@ -23,12 +12,10 @@ s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
 quantities = []
 
 # quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
-quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_30', 'name': None, 'log10': True})
-
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
 
 for t in [10,50,200]:
-    quantities.append({'path': f'Galaxy/SFR_aperture/SFR_30', 'dataset': f'SFR_{t}_Myr', 'name': f'SFR_{t}', 'log10': True})
-
+    quantities.append({'path': f'Galaxy/SFR_aperture/30', 'dataset': f'{t}Myr', 'name': f'SFR_{t}', 'log10': True})
 
 quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModelI', 'dataset': 'FUV', 'name': None, 'log10': True})
 
@@ -43,10 +30,10 @@ D = {}
 s = {}
 s['log10Mstar_30'] = {}
 s['log10FUV'] = {}
-for tag, z in zip(fl.tags, fl.zeds):
+for tag, z in zip(tags, zeds):
 
     # --- get quantities (and weights and deltas)
-    D[z] = fa.get_datasets(fl, tag, quantities)
+    D[z] = a.get_datasets(tag, quantities)
 
     print(D[z]['Mstar_30'].shape, D[z]['SFR_50'].shape, D[z]['FUV'].shape)
 
@@ -66,10 +53,10 @@ for tag, z in zip(fl.tags, fl.zeds):
 
 x = 'log10Mstar_30'
 
-limits = fa.limits
+limits = flares_utility.limits.limits
 limits[x][0] = s_limit[x]
 
-fig, axes = fa.linear_redshift_mcol(D, fl.zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno, add_linear_fit = False, height = 2)
+fig, axes = flares_utility.plt.linear_redshift_mcol(D, zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno, add_linear_fit = False, height = 2)
 
 for ax in axes.flatten():
     ax.axhline(0.0, color='k',lw=2, alpha=0.1)

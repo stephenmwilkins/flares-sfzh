@@ -7,27 +7,8 @@ import scipy.stats as stats
 import pickle
 
 
-import flares
-import flares_analysis as fa
-import flare.plt as fplt
+from load import * # loads flares_analysis as a and defined mass/luminosity limits and tags/zeds
 
-# ----------------------------------------------------------------------
-# --- open data
-
-# fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
-fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
-
-
-# fl.explore()
-
-halo = fl.halos
-
-# ----------------------------------------------------------------------
-# --- define parameters and tag
-tag = fl.tags[-3]  # --- select tag -3 = z=7
-
-
-s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
 
 # ----------------------------------------------------------------------
 # --- define quantities to read in [not those for the corner plot, that's done later]
@@ -35,37 +16,34 @@ s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
 quantities = []
 
 # quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
-quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_30', 'name': None, 'log10': True})
-
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
 quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModelI', 'dataset': 'FUV', 'name': None, 'log10': True})
-
 
 properties = ['log10lambda', 'nvariance','skew','nkurtosis']
 x_ = ['log10Mstar_30', 'log10FUV']
 
 
+D = pickle.load(open('moments_and_percentiles.p','rb'))
 
-
-D = pickle.load(open('moments.p','rb'))
-s = pickle.load(open('s.p','rb'))
-
-for z in fl.zeds:
-    D[z]['lambda'] = 1/D[z]['moment1']
+s = {x : {} for x in x_ }
+for z in zeds:
+    D[z]['lambda'] = 1/(D[z]['moment1'])
     D[z]['log10lambda'] = np.log10(D[z]['lambda'])
     D[z]['nvariance'] = D[z]['moment2']*D[z]['lambda']**2
     D[z]['skew'] = D[z]['moment3']
     D[z]['nkurtosis'] = D[z]['moment4']-3
 
+    for x in x_:
+        s[x][z] = D[z][f'{x}_s']
 
 
 x = 'log10Mstar_30'
 
-limits = fa.limits
+limits = flares_utility.limits.limits
+
 limits[x][0] = s_limit[x]
 
-fig, axes = fa.linear_redshift_mcol(D, fl.zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno, add_linear_fit = False)
-
-print(axes.shape)
+fig, axes = flares_utility.plt.linear_redshift_mcol(D, zeds, x, properties, s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno, add_linear_fit = False)
 
 
 # normalised variance, should be 1 for exp

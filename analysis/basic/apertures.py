@@ -8,54 +8,60 @@ import cmasher as cmr
 
 cmap = cmr.rainforest
 
-import flares
-import flares_analysis as fa
+from flares_utility import analyse
+from flares_utility import stats as flares_stats
+
 import flare.plt as fplt
 
 # ----------------------------------------------------------------------
-# --- open data
+# --- open data and load analyser
 
-fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
-# fl.explore()
+a = analyse.analyse_flares(analyse.flares_master_file, default_tags = False)
 
-halo = fl.halos
+# ----------------------------------------------------------------------
+# --- list datasets (specifically for the 1st sim/tag)
+# a.list_datasets()
 
 # ----------------------------------------------------------------------
 # --- define parameters and tag
-tag = fl.tags[-1]  # --- tag 0 = 10
+tag = a.tags[-1]  # --- tag 0 = (z = 15)
+z = a.zed_from_tag[tag] # get redshift of that tag
+print(tag, z, a.tag_from_zed[z]) # print, but also shows how to the tag from zed
 
-
+# --- define SFR averaging timescale
 t = '50'
-
-apertures = fa.apertures
 
 # ----------------------------------------------------------------------
 # --- define quantities to read in [not those for the corner plot, that's done later]
 
 quantities = []
-quantities.append({'path': 'Galaxy', 'dataset': 'Mstar', 'name': None, 'log10': True}) # total
-quantities.append({'path': 'Galaxy/SFR_total', 'dataset': f'SFR_{t}_Myr', 'name': 'SFR', 'log10': True}) # total
+quantities.append({'path': 'Galaxy', 'dataset': 'Mstar', 'name': 'Mstar_total', 'log10': True}) # total? 30?
+quantities.append({'path': 'Galaxy/SFR', 'dataset': f'{t}Myr', 'name': 'SFR_total', 'log10': True}) # total
 
-for r in fa.apertures:
-    quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_{r}', 'name': None, 'log10': True})
-    quantities.append({'path': f'Galaxy/SFR_aperture/SFR_{r}', 'dataset': f'SFR_{t}_Myr', 'name': f'SFR_{r}', 'log10': True})
+for r in a.apertures:
+    quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'{r}', 'name': f'Mstar_{r}', 'log10': True})
+    quantities.append({'path': f'Galaxy/SFR_aperture/{r}', 'dataset': f'{t}Myr', 'name': f'SFR_{r}', 'log10': True})
 
 
 
 # --- get quantities (and weights and deltas)
-D = fa.get_datasets(fl, tag, quantities)
+D = a.get_datasets(tag, quantities)
+
+D['log10Mstar'] = D['log10Mstar_30']
+D['log10SFR'] =  D['log10SFR_30']
 
 
-D['log10sSFR'] = D['log10SFR'] - D['log10Mstar'] + 9. # total
 
-for r in fa.apertures:
+# --- calculate sSFRs
+
+D['log10sSFR'] = D['log10SFR'] - D['log10Mstar'] + 9. #default
+D['log10sSFR_total'] = D['log10SFR_total'] - D['log10Mstar_total'] + 9. # total
+
+for r in a.apertures:
     D[f'log10sSFR_{r}'] = D[f'log10SFR_{r}'] - D[f'log10Mstar_{r}'] + 9. #aperture based
 
 
-print(np.min(D['log10SFR']), np.max(D['log10SFR']))
-
-
-for r in fa.apertures:
+for r in a.apertures:
     print(np.min(D[f'log10Mstar_{r}']), np.max(D[f'log10Mstar_{r}']))
 
 limits = {}
@@ -72,52 +78,6 @@ labels['log10sSFR'] = r'log_{10}(sSFR_{50}/Gyr^{-1})'
 labelss['log10sSFR'] = 'sSFR_{50}'
 
 
-#
-# # --- individual plots
-#
-# x = 'log10Mstar'
-#
-# for y in ['log10Mstar', 'log10SFR_100', 'log10sSFR_100']:
-#
-#     N = len(apertures)
-#
-#     left = 0.2
-#     top = 0.95
-#     bottom = 0.05
-#     right = 0.9
-#     panel_width = (right-left)/N
-#     panel_height = top-bottom
-#     fig, axes = plt.subplots(N, 1, figsize = (3,2*N), sharex = True)
-#     plt.subplots_adjust(left=left, top=top, bottom=bottom, right=right, wspace=0.0, hspace=0.01)
-#
-#     for ax, r in zip(axes, apertures):
-#
-#         ax.axhline(0.0, color='k', lw=2, alpha=0.2)
-#
-#         yy = f'{y}_{r}'
-#
-#         # --- weighted median Lines
-#
-#         print(np.min(D[yy]), np.max(D[yy]))
-#
-#         R = D[yy]-D[y]
-#
-#         bins = np.linspace(*limits[x], 20)
-#         bincen = (bins[:-1]+bins[1:])/2.
-#         out = flares.binned_weighted_quantile(D[x], R, D['weight'],bins,[0.84,0.50,0.16])
-#
-#         ax.plot(bincen, out[:,1], ls = '-')
-#
-#         ax.set_xlim(limits[x])
-#         ax.set_ylim([-0.5,0.5])
-#
-#         ax.set_ylabel(rf'$\rm log_{{10}}({labelss[y]}^{{ {r} }}/{labelss[y]}^{{tot}})$', fontsize = 9)
-#
-#     axes[-1].set_xlabel(rf'$\rm {labels[x]}$', fontsize = 9)
-#
-#     fig.savefig(f'figs/apertures_{y}.pdf')
-#
-
 
 
 # --- individual plots
@@ -130,20 +90,20 @@ for y in ['log10Mstar', 'log10SFR', 'log10sSFR']:
 
     ax.axhline(0.0, color='k', lw=2, alpha=0.2)
 
-    for i,r in enumerate(fa.apertures):
+    for i,r in enumerate(a.apertures):
 
-        c = cmap(i/len(fa.apertures))
+        c = cmap(i/len(a.apertures))
 
         yy = f'{y}_{r}'
 
         # --- weighted median Lines
-        R = D[yy]-D[y]
+        R = D[yy]-D[y+'_total']
 
 
 
         bins = np.linspace(*limits[x], 20)
         bincen = (bins[:-1]+bins[1:])/2.
-        out = flares.binned_weighted_quantile(D[x], R, D['weight'],bins,[0.84,0.50,0.16])
+        out = flares_stats.binned_weighted_quantile(D[x], R, D['weight'],bins,[0.84,0.50,0.16])
 
         N, bin_edges = np.histogram(D[x], bins=bins)
 

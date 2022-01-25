@@ -10,29 +10,20 @@ import pickle
 
 from astropy.io import ascii
 
-import flares
-import flares_analysis as fa
-import flare.plt as fplt
 
-# ----------------------------------------------------------------------
-# --- open data
-
-# fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
-fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
+from load import * # loads flares_analysis as a and defined mass/luminosity limits and tags/zeds
 
 
 
-s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
 
 # ----------------------------------------------------------------------
 # --- define quantities to read in [not those for the corner plot, that's done later]
 
 quantities = []
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
 
-# quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
-quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_30', 'name': None, 'log10': True})
+Dp = pickle.load(open('moments_and_percentiles.p','rb'))
 
-Dp = pickle.load(open('percentiles.p','rb'))
 
 x = 'log10Mstar_30'
 y = 'age'
@@ -40,12 +31,12 @@ y = 'age'
 D = {}
 s = {}
 
-for tag, z in zip(fl.tags, fl.zeds):
+for tag, z in zip(tags, zeds):
 
     # --- get quantities (and weights and deltas)
-    D[z] = fa.get_datasets(fl, tag, quantities)
+    D[z] = a.get_datasets(tag, quantities)
 
-    D[z]['age'] = Dp[z]['P0.5']*1E3
+    D[z]['age'] = Dp[z]['P0.5']
     D[z]['log10age'] = np.log10(D[z]['age'])
 
     s[z] = D[z][x]>s_limit[x]
@@ -55,10 +46,10 @@ for tag, z in zip(fl.tags, fl.zeds):
 
 
 
-limits = fa.limits
+limits = flares_utility.limits.limits
 limits[x][0] = s_limit[x]
 
-fig, axes = fa.linear_redshift(D, fl.zeds, x, y, s, limits = limits, scatter = False, rows=2, add_weighted_range = True)
+fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=2, add_weighted_range = True)
 
 
 Tacchella21 = {}
@@ -68,7 +59,7 @@ Tacchella21['parametric'] = ascii.read('obs/table_result_eazy_param.cat')
 Tacchella21['bursty'] = ascii.read('obs/table_result_eazy_bursty.cat')
 
 
-for tag, z, ax in zip(fl.tags, fl.zeds, axes):
+for tag, z, ax in zip(tags, zeds, axes):
 
     add_legend = False
 

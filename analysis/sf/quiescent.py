@@ -5,21 +5,8 @@ import matplotlib.cm as cm
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-import flares
-import flares_analysis as fa
-import flare.plt as fplt
+from load import * # loads flares_analysis as a and defined mass/luminosity limits and tags/zeds
 
-# ----------------------------------------------------------------------
-# --- open data
-
-# fl = flares.flares('/cosma7/data/dp004/dc-payy1/my_files/flares_pipeline/data/flares.hdf5', sim_type='FLARES')
-fl = flares.flares('/cosma7/data/dp004/dc-love2/codes/flares/data/flares.hdf5', sim_type='FLARES')
-
-
-limit = 8.5
-
-limits = fa.limits
-limits['log10Mstar_30'][0] = limit
 
 # ----------------------------------------------------------------------
 # --- define quantities to read in [not those for the corner plot, that's done later]
@@ -27,17 +14,16 @@ limits['log10Mstar_30'][0] = limit
 quantities = []
 
 # quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
-quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'Mstar_30', 'name': None, 'log10': True})
-
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
 
 # quantities.append({'path': 'Galaxy/SFR', 'dataset': 'SFR_50', 'name': None, 'log10': True})
-quantities.append({'path': f'Galaxy/SFR_aperture/SFR_30', 'dataset': f'SFR_50_Myr', 'name': f'SFR_50', 'log10': True})
+quantities.append({'path': f'Galaxy/SFR_aperture/30', 'dataset': f'50Myr', 'name': f'SFR_50', 'log10': True})
 
 
 
 
 
-bins = np.linspace(*fa.limits['log10Mstar_30'], 12)
+bins = np.linspace(*flares_utility.limits.limits['log10Mstar_30'], 12)
 bincen = (bins[:-1]+bins[1:])/2.
 
 
@@ -46,12 +32,12 @@ fig, ax = fplt.simple()
 norm = mpl.colors.Normalize(vmin=5, vmax=10)
 
 
-for tag, z in zip(fl.tags, fl.zeds):
+for tag, z in zip(tags, zeds):
 
     c = cm.plasma(norm(z))
 
     # --- get quantities (and weights and deltas)
-    D = fa.get_datasets(fl, tag, quantities)
+    D = a.get_datasets(tag, quantities)
 
     print(np.median(D['log10SFR_50']))
 
@@ -61,7 +47,7 @@ for tag, z in zip(fl.tags, fl.zeds):
     print(np.min(log10sSFR),np.median(log10sSFR),np.max(log10sSFR))
 
 
-    s = D['log10Mstar_30']>limit
+    s = D['log10Mstar_30']>s_limit['log10Mstar_30']
     s_quiescent = log10sSFR<0.0
 
     # all, bin_edges = np.histogram(D['log10Mstar_30'][s], bins=bins, weights=D['weight'][s])
@@ -78,9 +64,9 @@ for tag, z in zip(fl.tags, fl.zeds):
 ax.legend(fontsize=8)
 
 
-ax.set_xlim(limits['log10Mstar_30'])
+ax.set_xlim(flares_utility.limits.limits['log10Mstar_30'])
 
-ax.set_xlabel(rf'$\rm {fa.labels["log10Mstar_30"]}$', fontsize = 9)
+ax.set_xlabel(rf'$\rm {flares_utility.labels.labels["log10Mstar_30"]}$', fontsize = 9)
 ax.set_ylabel(rf'$\rm N(sSFR/Gyr^{{-1}}<1)/N$', fontsize = 9)
 
 
