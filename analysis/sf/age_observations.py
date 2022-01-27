@@ -49,7 +49,7 @@ for tag, z in zip(tags, zeds):
 limits = flares_utility.limits.limits
 limits[x][0] = s_limit[x]
 
-fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=2, add_weighted_range = True)
+fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=1, add_weighted_range = True)
 
 
 Tacchella21 = {}
@@ -59,12 +59,14 @@ Tacchella21['parametric'] = ascii.read('obs/table_result_eazy_param.cat')
 Tacchella21['bursty'] = ascii.read('obs/table_result_eazy_bursty.cat')
 
 
+added_tacchella = False
+
 for tag, z, ax in zip(tags, zeds, axes):
+
+    colors = cmr.take_cmap_colors('cmr.apple', 3, cmap_range=(0.15, 0.85), return_fmt='hex')
 
     add_legend = False
 
-
-    colors = cmr.take_cmap_colors('cmr.apple', 3, cmap_range=(0.15, 0.85), return_fmt='hex')
 
     for prior, c in zip(['continuity','parametric','bursty'], colors):
 
@@ -72,19 +74,23 @@ for tag, z, ax in zip(tags, zeds, axes):
 
         if len(Tacchella21[prior]['log_stellar_mass_q50'][s])>0:
 
-            add_legend = True
+            if not added_tacchella:
+                add_legend = True
+                added_tacchella = True
 
             x = Tacchella21[prior]['log_stellar_mass_q50'][s]
             y = Tacchella21[prior]['time_50_q50'][s]*1E3
             xerr = (x-Tacchella21[prior]['log_stellar_mass_q16'][s], Tacchella21[prior]['log_stellar_mass_q84'][s]-x)
             yerr = (y-(Tacchella21[prior]['time_50_q16'][s]*1E3), (Tacchella21[prior]['time_50_q84'][s]*1E3)-y)
 
-            ax.errorbar(x, y, xerr=xerr, yerr=yerr, color=c, markersize=2, label = rf'$\rm Tacchella+21\ {prior}\ prior$', marker = 'o', linestyle='none', elinewidth = 1)
+            ax.scatter(x, y, color=c, s=2, label = rf'$\rm T22/{prior}$', marker = 'o')
+
+            # ax.errorbar(x, y, xerr=xerr, yerr=yerr, color=c, markersize=2, label = rf'$\rm Tacchella+21\ {prior}\ prior$', marker = 'o', linestyle='none', elinewidth = 1)
 
 
 
     if add_legend:
-        ax.legend(fontsize = 7, labelspacing = 0.05)
+        ax.legend(fontsize = 7, labelspacing = 0.05, handletextpad = 0.01)
 
 
 

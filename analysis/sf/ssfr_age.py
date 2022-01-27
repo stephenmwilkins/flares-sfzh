@@ -33,7 +33,7 @@ for tag, z in zip(tags, zeds):
 
     D[z]['log10sSFR'] = D[z]['log10SFR_50'] - D[z]['log10Mstar_30'] + 9
 
-    D[z]['age'] = Dp[z]['P0.5']*1E3
+    D[z]['age'] = Dp[z]['P0.5']#*1E3
     D[z]['log10age'] = np.log10(D[z]['age'])
 
     for x in x_:
@@ -50,7 +50,7 @@ cmap = {'log10FUV': cm.viridis, 'log10Mstar_30': cm.inferno}
 
 
 # for y in ['log10age', 'log10sSFR', 'log10Z']:
-for y in ['log10sSFR']: #'log10age','age',
+for y in ['log10sSFR','log10age']: #'log10age','age',
 
     print(y)
 
@@ -63,4 +63,11 @@ for y in ['log10sSFR']: #'log10age','age',
 
         fig.savefig(f'figs/{y}_{x}.pdf')
         fig.savefig(f'figs/{y}_{x}.png')
+        # fig.savefig(f'figs/combined_redshift_{x}.png')
+
+
+        fig, ax = flares_utility.plt.linear_redshift(D, zeds, x, y, s[x], limits = limits, scatter_colour_quantity = z, scatter_cmap = cmap[x], rows=1)
+
+        fig.savefig(f'figs/{y}_{x}_compact.pdf')
+        fig.savefig(f'figs/{y}_{x}_compact.png')
         # fig.savefig(f'figs/combined_redshift_{x}.png')

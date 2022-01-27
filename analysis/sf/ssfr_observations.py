@@ -42,14 +42,14 @@ for tag, z in zip(tags, zeds):
 limits = flares_utility.limits.limits
 limits[x][0] = s_limit[x]
 
-fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=2, add_weighted_range = True)
+fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=1, add_weighted_range = True)
 
 
 observations = {}
 observations['Salmon+15'] = {}
 observations['Salmon+15']['redshifts'] = [5.0, 6.0]
 observations['Salmon+15']['c'] = 'b'
-observations['Salmon+15']['s'] = 4
+observations['Salmon+15']['s'] = 3
 
 observations['Salmon+15'][5.0] = {}
 observations['Salmon+15'][5.0]['log10M*'] = np.array([9.0,9.25,9.50,9.75,10.,10.25])
@@ -73,10 +73,13 @@ Tacchella21['bursty'] = ascii.read('obs/table_result_eazy_bursty.cat')
 
 
 
-add_Salmon_legend = True
-add_Tacchella_legend = True
+added_tacchella = False
+added_salmon = False
 
 for tag, z, ax in zip(tags, zeds, axes):
+
+
+    add_legend = False
 
     # Salmon+
 
@@ -88,29 +91,19 @@ for tag, z, ax in zip(tags, zeds, axes):
 
             if np.fabs(zobs-z)<0.51: # if points at this redshift
 
-                if add_Salmon_legend:
-                    # label = rf'$\rm {obsname}\ (z={zobs})$'
+                if not added_salmon:
                     label = rf'$\rm {obsname}$'
-                    add_Salmon_legend = False
-                    print('bang')
+                    add_legend = True
+                    added_salmon = True
                 else:
                     label = None
 
-                ax.errorbar(obs['log10M*'], obs['log10sSFR'], yerr = obs['error'], color=observations[obsname]['c'], markersize=observations[obsname]['s'], label = label, marker = 'o', linestyle='none')
-
-
-
+                ax.errorbar(obs['log10M*'], obs['log10sSFR'], yerr = obs['error'], color=observations[obsname]['c'], markersize=observations[obsname]['s'], label = label, marker = 'o', linestyle='none', elinewidth = 1)
 
 
     # % Tacchella
 
     colors = cmr.take_cmap_colors('cmr.apple', 3, cmap_range=(0.15, 0.85), return_fmt='hex')
-
-    if add_Tacchella_legend:
-        add_label = True
-        add_Tacchella_legend = False
-    else:
-        add_label = False
 
 
     for prior, c in zip(['continuity','parametric','bursty'], colors):
@@ -124,20 +117,22 @@ for tag, z, ax in zip(tags, zeds, axes):
             xerr = (x-Tacchella21[prior]['log_stellar_mass_q16'][s], Tacchella21[prior]['log_stellar_mass_q84'][s]-x)
             yerr = (y-(Tacchella21[prior]['log_ssfr_50_q16'][s]+9), (Tacchella21[prior]['log_ssfr_50_q84'][s]+9)-y)
 
-            if add_label:
-                label = rf'$\rm Tacchella+21\ {prior}\ prior$'
+            if not added_tacchella:
+                label = rf'$\rm T22/{prior}$'
+                add_legend = True
+                added_tacchella = True
             else:
                 label = None
 
 
-            ax.errorbar(x, y, xerr=xerr, yerr=yerr, color=c, markersize=2, label = label, marker = 'o', linestyle='none', elinewidth = 1)
+            # ax.errorbar(x, y, xerr=xerr, yerr=yerr, color=c, markersize=2, label = label, marker = 'o', linestyle='none', elinewidth = 1)
+
+            ax.scatter(x, y, color=c, s=2, label = rf'$\rm T22/{prior}$', marker = 'o')
 
 
 
-
-
-
-    ax.legend(fontsize = 7, labelspacing = 0.05)
+    if add_legend:
+        ax.legend(loc = 'lower left', fontsize = 7, labelspacing = 0.05, handletextpad = 0.1, handlelength = 0.75)
 
 
 
