@@ -59,7 +59,7 @@ for y in ['log10sSFR','log10age']: #'log10age','age',
         limits = flares_utility.limits.limits
         limits[x][0] = s_limit[x]
 
-        fig, ax = flares_utility.plt.linear_redshift(D, zeds, x, y, s[x], limits = limits, scatter_colour_quantity = z, scatter_cmap = cmap[x], rows=2)
+        fig, ax = flares_utility.plt.linear_redshift(D, zeds, x, y, s[x], limits = limits, scatter_colour_quantity = z, scatter_cmap = cmap[x], rows=2, add_linear_fit = False)
 
         fig.savefig(f'figs/{y}_{x}.pdf')
         fig.savefig(f'figs/{y}_{x}.png')

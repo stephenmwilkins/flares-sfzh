@@ -20,7 +20,7 @@ a = analyse.analyse_flares(analyse.flares_master_file, default_tags = False)
 
 # ----------------------------------------------------------------------
 # --- list datasets (specifically for the 1st sim/tag)
-# a.list_datasets()
+a.list_datasets()
 
 # ----------------------------------------------------------------------
 # --- define parameters and tag
