@@ -61,7 +61,7 @@ for tag, z in zip(a.tags, a.zeds):
 
             # --- measure the quantiles of the metallicity distribution
             for n in range(1, 5):
-                D[z][f'moment{n}'][i] =  flares_utility.stats.n_weighted_moment(age, massinitial, n)
+                D[z][f'moment{n}'][i] =  flares_utility.stats.n_weighted_moment(Z, massinitial, n)
 
 
 
