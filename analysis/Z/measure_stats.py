@@ -39,33 +39,28 @@ for tag, z in zip(a.tags, a.zeds):
 
     # --- define the outputs
 
-    D[z]['mean'] = np.zeros(len(D[z]['log10Mstar_30']))
     D[z]['r'] = np.zeros(len(D[z]['log10Mstar_30']))
+    D[z]['rlog10a'] = np.zeros(len(D[z]['log10Mstar_30']))
+    D[z]['rlog10b'] = np.zeros(len(D[z]['log10Mstar_30']))
 
     for q in quantiles:
         D[z][f'Q{q}'] = np.zeros(len(D[z]['log10Mstar_30']))
-
-    for n in range(1, 5):
-        D[z][f'moment{n}'] = np.zeros(len(D[z]['log10Mstar_30']))
 
 
     for i, (age, Z, massinitial, mass) in enumerate(zip(pD['S_Age'], pD['S_Z'], pD['S_MassInitial'], pD['S_Mass'])):
         if len(Z)>0:
 
+            Z[Z==0] = 1E-5
+
             # --- measure the pearson correlation coefficient of the age/Z distribution
             D[z]['r'][i] = pearsonr(age, Z)[0]
+            D[z]['rlog10a'][i] = pearsonr(age, np.log10(Z))[0]
+            D[z]['rlog10b'][i] = pearsonr(np.log10(age), np.log10(Z))[0]
 
             # --- measure the quantiles of the metallicity distribution
             for q in quantiles:
                 D[z][f'Q{q}'][i] =  flares_utility.stats.weighted_quantile(Z, q, sample_weight = massinitial)
 
-            # --- measure the quantiles of the metallicity distribution
-            for n in range(1, 5):
-                D[z][f'moment{n}'][i] =  flares_utility.stats.n_weighted_moment(Z, massinitial, n)
 
 
-
-    D[z]['s'] = D[z][x]>s_limit
-
-
-pickle.dump(D, open('Z.p','wb'))
+pickle.dump(D, open('stats.p','wb'))
