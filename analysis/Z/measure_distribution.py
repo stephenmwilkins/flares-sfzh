@@ -59,7 +59,7 @@ for tag, z in zip(a.tags, a.zeds):
         N, _ = np.histogram(o, bins = linear_bins)
         O[z]['linear'][log10Mstar] = N
 
-        N, _ = np.histogram(o, bins = log10_bins)
+        N, _ = np.histogram(np.log10(o), bins = log10_bins)
         O[z]['log10'][log10Mstar] = N
 
 
