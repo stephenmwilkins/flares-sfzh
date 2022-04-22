@@ -32,22 +32,22 @@ for z in zeds:
     # D[z]['nvariance'] = D[z]['moment2']*D[z]['lambda']**2
     D[z]['nvariance'] = D[z]['moment1'+l]/np.sqrt(D[z]['moment2'+l])
 
-    print(np.median(D[z]['nvariance']))
+    print(np.median(D[z]['moment2'+l]), np.median(D[z]['nvariance']), np.median(D[z]['moment3'+l]), np.median(D[z]['moment4'+l]))
 
     D[z]['skew'] = D[z]['moment3'+l]
 
-    print(np.median(D[z]['skew'][~np.isnan(D[z]['skew'])]))
+    # print(np.median(D[z]['skew'][~np.isnan(D[z]['skew'])]))
 
     D[z]['nkurtosis'] = D[z]['moment4'+l]-3
-    s[z] = D[z]['s']
-
+    s[z] = (D[z]['s'])&(~np.isnan(D[z]['skew']))
 
 
 
 limits = flares_utility.limits.limits
 
-limits['nvariance'] = [0.51, 1.99]
-limits['nkurtosis'] = [-1., 9.99]
+limits['nvariance'] = [-4.0, 4.0]
+limits['skew'] = [-1., 20.]
+limits['nkurtosis'] = [-1., 20.]
 
 labels['mean'] = 'mean'
 labels['nvariance'] = 'mean/\sqrt{var}'
