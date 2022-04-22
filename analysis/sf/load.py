@@ -5,14 +5,18 @@ import flares_utility.analyse
 import flares_utility.stats
 import flares_utility.limits
 import flares_utility.plt
-
+import flares_utility.colors 
 import flare.plt as fplt
 
 # ----------------------------------------------------------------------
 # --- open data and load analyser
-a = flares_utility.analyse.analyse_flares(flares_utility.analyse.flares_master_file, default_tags = False)
 
-s_limit = {'log10Mstar_30': 9.0, 'log10FUV': 28.5}
+filename = flares_utility.analyse.flares_master_file
+a = flares_utility.analyse.analyse_flares(filename, default_tags = False)
+
+# a.list_datasets()
+
+s_limit = {'log10Mstar_30': 8.5, 'log10FUV': 28.5}
 
 tags = ['005_z010p000','006_z009p000','007_z008p000','008_z007p000','009_z006p000','010_z005p000']
 zeds = np.array([float(tag[5:].replace('p','.')) for tag in tags])

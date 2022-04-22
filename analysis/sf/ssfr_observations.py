@@ -10,6 +10,9 @@ import pickle
 
 from astropy.io import ascii
 
+import flare.obs.literature.ssfr as ssfr_observations
+
+
 from load import * # loads flares_analysis as a and defined mass/luminosity limits and tags/zeds
 
 
@@ -17,8 +20,8 @@ from load import * # loads flares_analysis as a and defined mass/luminosity limi
 # --- define quantities to read in [not those for the corner plot, that's done later]
 
 quantities = []
-
-quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': f'Mstar_30', 'log10': True})
+quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModelI', 'dataset': 'FUV', 'name': None, 'log10': True})
+quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
 quantities.append({'path': f'Galaxy/SFR_aperture/30', 'dataset': f'50Myr', 'name': f'SFR_50', 'log10': True})
 
 
@@ -27,6 +30,7 @@ y = 'log10sSFR'
 
 D = {}
 s = {}
+
 
 for tag, z in zip(tags, zeds):
 
@@ -39,108 +43,58 @@ for tag, z in zip(tags, zeds):
 
 
 
+
+x = 'log10Mstar_30'
+
 limits = flares_utility.limits.limits
 limits[x][0] = s_limit[x]
 
-fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=1, add_weighted_range = True)
-
-
-observations = {}
-observations['Salmon+15'] = {}
-observations['Salmon+15']['redshifts'] = [5.0, 6.0]
-observations['Salmon+15']['c'] = 'b'
-observations['Salmon+15']['s'] = 3
-
-observations['Salmon+15'][5.0] = {}
-observations['Salmon+15'][5.0]['log10M*'] = np.array([9.0,9.25,9.50,9.75,10.,10.25])
-observations['Salmon+15'][5.0]['log10SFR'] = np.array([0.88,1.04,1.12,1.23,1.46,1.62])
-observations['Salmon+15'][5.0]['error'] = np.array([0.42,0.38,0.41,0.43,0.31,0.37])
-
-observations['Salmon+15'][6.0] = {}
-observations['Salmon+15'][6.0]['log10M*'] = np.array([9.0,9.25,9.50,9.75,10.])
-observations['Salmon+15'][6.0]['log10SFR'] = np.array([0.92,1.07,1.27,1.40,1.147])
-observations['Salmon+15'][6.0]['error'] = np.array([0.19,0.21,0.35,0.26,0.07])
-
-# --- calculate sSFRs
-for z in observations['Salmon+15']['redshifts']:
-    observations['Salmon+15'][z]['log10sSFR'] = observations['Salmon+15'][z]['log10SFR']-observations['Salmon+15'][z]['log10M*']+9.0 # convert to sSFR/Gyr
-
-
-Tacchella21 = {}
-Tacchella21['continuity'] = ascii.read('obs/table_result_eazy.cat')
-Tacchella21['parametric'] = ascii.read('obs/table_result_eazy_param.cat')
-Tacchella21['bursty'] = ascii.read('obs/table_result_eazy_bursty.cat')
+fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=2, add_weighted_range = True, bins = 10, weighted = True)
 
 
 
-added_tacchella = False
-added_salmon = False
 
-for tag, z, ax in zip(tags, zeds, axes):
+# --- determine the number of observational studies
 
+observations = ssfr_observations
 
-    add_legend = False
+observation_list = []
+added_to_legend = []
 
-    # Salmon+
-
-    for obsname in ['Salmon+15']:
-
-        for zobs in observations[obsname]['redshifts']:
-
-            obs = observations[obsname][zobs]
-
-            if np.fabs(zobs-z)<0.51: # if points at this redshift
-
-                if not added_salmon:
-                    label = rf'$\rm {obsname}$'
-                    add_legend = True
-                    added_salmon = True
-                else:
-                    label = None
-
-                ax.errorbar(obs['log10M*'], obs['log10sSFR'], yerr = obs['error'], color=observations[obsname]['c'], markersize=observations[obsname]['s'], label = label, marker = 'o', linestyle='none', elinewidth = 1)
+for z in a.zeds:
+    if z in observations.observed.keys():
+        for obs in observations.observed[z]:
+            observation_list.append(obs.label)
 
 
-    # % Tacchella
+cmap = 'cmr.chroma'
+colors = dict(zip(observation_list, cmr.take_cmap_colors(cmap, len(observation_list), cmap_range=(0.15, 0.85))))
+markers = dict(zip(observation_list,  ['o','v','D','s','^','p','h','d']))
 
-    colors = cmr.take_cmap_colors('cmr.apple', 3, cmap_range=(0.15, 0.85), return_fmt='hex')
+for ax, z in zip(axes, a.zeds):
+    if z in observations.observed.keys():
+        for obs in observations.observed[z]:
 
+            id = obs.label
 
-    for prior, c in zip(['continuity','parametric','bursty'], colors):
-
-        s = np.fabs(Tacchella21[prior]['redshift_q50']-z)<0.51
-
-        if len(Tacchella21[prior]['log_stellar_mass_q50'][s])>0:
-
-            x = Tacchella21[prior]['log_stellar_mass_q50'][s]
-            y = Tacchella21[prior]['log_ssfr_50_q50'][s]+9
-            xerr = (x-Tacchella21[prior]['log_stellar_mass_q16'][s], Tacchella21[prior]['log_stellar_mass_q84'][s]-x)
-            yerr = (y-(Tacchella21[prior]['log_ssfr_50_q16'][s]+9), (Tacchella21[prior]['log_ssfr_50_q84'][s]+9)-y)
-
-            if not added_tacchella:
-                label = rf'$\rm T22/{prior}$'
-                add_legend = True
-                added_tacchella = True
+            if id not in added_to_legend:
+                label = rf'$\rm {id}$'
+                added_to_legend.append(id)
             else:
                 label = None
 
+            if obs.dt == 'io':
+                ax.scatter(obs.log10Mstar, obs.log10sSFR, c=[colors[id]], s=3, marker=markers[id], label = label)
+            if obs.dt == 'binned':
 
-            # ax.errorbar(x, y, xerr=xerr, yerr=yerr, color=c, markersize=2, label = label, marker = 'o', linestyle='none', elinewidth = 1)
+                if type(obs.log10Mstar[z])==np.ndarray:
+                    ax.errorbar(obs.log10Mstar[z], obs.log10sSFR[z], xerr = obs.log10Mstar_err[z], yerr = obs.log10sSFR_err[z], fmt='o', elinewidth=1, ms=5, label = label, c='k', mec='k', mfc=colors[id])
 
-            ax.scatter(x, y, color=c, s=2, label = rf'$\rm T22/{prior}$', marker = 'o')
-
-
-
-    if add_legend:
-        ax.legend(loc = 'lower left', fontsize = 7, labelspacing = 0.05, handletextpad = 0.1, handlelength = 0.75)
-
+        ax.legend(fontsize=7, handletextpad = 0.0)
 
 
-
-
-
-
+for ax, z in zip(axes, a.zeds):
+    ax.set_xticks(np.arange(9, 12, 1.0))
 
 
 fig.savefig(f'figs/ssfr_observations.pdf')
-fig.savefig(f'figs/ssfr_observations.png')

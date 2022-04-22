@@ -11,6 +11,9 @@ import pickle
 from astropy.io import ascii
 
 
+
+import flare.obs.literature.age as age_observations
+
 from load import * # loads flares_analysis as a and defined mass/luminosity limits and tags/zeds
 
 
@@ -20,13 +23,16 @@ from load import * # loads flares_analysis as a and defined mass/luminosity limi
 # --- define quantities to read in [not those for the corner plot, that's done later]
 
 quantities = []
+quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModelI', 'dataset': 'FUV', 'name': None, 'log10': True})
 quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
+
 
 Dp = pickle.load(open('moments_and_percentiles.p','rb'))
 
 
+# x = 'log10FUV'
 x = 'log10Mstar_30'
-y = 'age'
+y = 'log10age'
 
 D = {}
 s = {}
@@ -44,59 +50,56 @@ for tag, z in zip(tags, zeds):
 
 
 
-
-
 limits = flares_utility.limits.limits
 limits[x][0] = s_limit[x]
 
-fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=1, add_weighted_range = True)
-
-
-Tacchella21 = {}
-
-Tacchella21['continuity'] = ascii.read('obs/table_result_eazy.cat')
-Tacchella21['parametric'] = ascii.read('obs/table_result_eazy_param.cat')
-Tacchella21['bursty'] = ascii.read('obs/table_result_eazy_bursty.cat')
-
-
-added_tacchella = False
-
-for tag, z, ax in zip(tags, zeds, axes):
-
-    colors = cmr.take_cmap_colors('cmr.apple', 3, cmap_range=(0.15, 0.85), return_fmt='hex')
-
-    add_legend = False
-
-
-    for prior, c in zip(['continuity','parametric','bursty'], colors):
-
-        s = np.fabs(Tacchella21[prior]['redshift_q50']-z)<0.51
-
-        if len(Tacchella21[prior]['log_stellar_mass_q50'][s])>0:
-
-            if not added_tacchella:
-                add_legend = True
-                added_tacchella = True
-
-            x = Tacchella21[prior]['log_stellar_mass_q50'][s]
-            y = Tacchella21[prior]['time_50_q50'][s]*1E3
-            xerr = (x-Tacchella21[prior]['log_stellar_mass_q16'][s], Tacchella21[prior]['log_stellar_mass_q84'][s]-x)
-            yerr = (y-(Tacchella21[prior]['time_50_q16'][s]*1E3), (Tacchella21[prior]['time_50_q84'][s]*1E3)-y)
-
-            ax.scatter(x, y, color=c, s=2, label = rf'$\rm T22/{prior}$', marker = 'o')
-
-            # ax.errorbar(x, y, xerr=xerr, yerr=yerr, color=c, markersize=2, label = rf'$\rm Tacchella+21\ {prior}\ prior$', marker = 'o', linestyle='none', elinewidth = 1)
-
-
-
-    if add_legend:
-        ax.legend(fontsize = 7, labelspacing = 0.05, handletextpad = 0.01)
+fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, rows=2, add_weighted_range = True, bins = 10, weighted = True)
 
 
 
 
 
+# --- add observational comparisons
 
+
+# --- determine the number of observational studies
+
+observations = age_observations
+
+observation_list = []
+added_to_legend = []
+
+for z in a.zeds:
+    if z in observations.observed.keys():
+        for obs in observations.observed[z]:
+            observation_list.append(obs.label)
+
+
+cmap = 'cmr.chroma'
+colors = dict(zip(observation_list, cmr.take_cmap_colors(cmap, len(observation_list), cmap_range=(0.15, 0.85))))
+markers = dict(zip(observation_list,  ['o','v','D','s','^','p','h','d']))
+
+for ax, z in zip(axes, a.zeds):
+    if z in observations.observed.keys():
+        for obs in observations.observed[z]:
+
+            id = obs.label
+
+            if id not in added_to_legend:
+                label = rf'$\rm {id}$'
+                added_to_legend.append(id)
+            else:
+                label = None
+
+            if obs.dt == 'io':
+                ax.scatter(obs.log10Mstar, obs.log10age, c=[colors[id]], s=3, marker=markers[id], label = label)
+
+
+        ax.legend(fontsize=7, handletextpad = 0.0)
+
+
+for ax, z in zip(axes, a.zeds):
+    ax.set_xticks(np.arange(9, 12, 1.0))
 
 
 

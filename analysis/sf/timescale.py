@@ -12,14 +12,13 @@ from load import * # loads flares_analysis as a and defined mass/luminosity limi
 D = pickle.load(open('moments_and_percentiles.p','rb'))
 
 
-x_ = ['log10Mstar_30', 'log10FUV']
-s = {x : {} for x in x_ }
+x = 'log10Mstar_30'
+s = {}
 
 for z in D.keys():
     D[z]['age'] = D[z]['P0.5']
     D[z]['timescale'] = (D[z]['P0.8']-D[z]['P0.2'])
-    for x in x_:
-        s[x][z] = D[z][f'{x}_s']
+    s[z] = D[z][f'{x}_s']
 
 
 x = 'log10Mstar_30'
@@ -28,7 +27,7 @@ y = 'timescale'
 
 limits[x][0] = s_limit[x]
 
-fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno)
+fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, add_weighted_range = True)
 
 
 

@@ -23,43 +23,52 @@ quantities.append({'path': f'Galaxy/SFR_aperture/30', 'dataset': f'50Myr', 'name
 
 
 
-bins = np.linspace(*flares_utility.limits.limits['log10Mstar_30'], 12)
+bins = np.arange(*[8.5, 12], 0.25)
 bincen = (bins[:-1]+bins[1:])/2.
 
 
 fig, ax = fplt.simple()
 
-norm = mpl.colors.Normalize(vmin=5, vmax=10)
+
+colors = flares_utility.colors.redshift
 
 
-for tag, z in zip(tags, zeds):
+from astropy.cosmology import Planck18 as cosmo
 
-    c = cm.plasma(norm(z))
+
+
+for tag, z, c in zip(tags, zeds, colors):
+
+    age_of_universe = cosmo.age(z)
+    print(z, -np.log10(age_of_universe.value))
 
     # --- get quantities (and weights and deltas)
     D = a.get_datasets(tag, quantities)
 
-    print(np.median(D['log10SFR_50']))
-
     log10sSFR = D['log10SFR_50'] - D['log10Mstar_30'] + 9 # + 10
 
-
-    print(np.min(log10sSFR),np.median(log10sSFR),np.max(log10sSFR))
-
-
     s = D['log10Mstar_30']>s_limit['log10Mstar_30']
-    s_quiescent = log10sSFR<0.0
+
+    med = np.median(log10sSFR[s])
+
+    s_quiescent = log10sSFR<-np.log10(age_of_universe.value)
+    # s_quiescent = log10sSFR<0.0
+    # s_quiescent = log10sSFR<med-1.0
+
 
     # all, bin_edges = np.histogram(D['log10Mstar_30'][s], bins=bins, weights=D['weight'][s])
     # quiescent, bin_edges  = np.histogram(D['log10Mstar_30'][s&s_quiescent], bins=bins, weights=D['weight'][s&s_quiescent])
 
-    all, bin_edges = np.histogram(D['log10Mstar_30'][s], bins=bins)
-    quiescent, bin_edges  = np.histogram(D['log10Mstar_30'][s&s_quiescent], bins=bins)
+    weights = D['weight']
+    # weights = np.ones(len(weights))
+
+    all, bin_edges = np.histogram(D['log10Mstar_30'][s], bins=bins, weights = weights[s])
+    quiescent, bin_edges  = np.histogram(D['log10Mstar_30'][s&s_quiescent], bins=bins, weights = weights[s&s_quiescent])
 
 
     f = quiescent/all
 
-    ax.plot(bincen, f, c=c, label = rf'$\rm z={z}$')
+    ax.plot(bincen, f, c=c, label = rf'$\rm z={z:.0f}$')
 
 ax.legend(fontsize=8)
 

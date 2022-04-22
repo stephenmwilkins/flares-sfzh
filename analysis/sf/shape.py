@@ -21,59 +21,45 @@ quantities.append({'path': f'Galaxy/BPASS_2.2.1/Chabrier300/Luminosity/DustModel
 
 
 
-
-
 properties = ['log10SFR10/50','log10SFR50/200']
-x_ = ['log10Mstar_30', 'log10FUV']
+
+x = 'log10Mstar_30'
 
 D = {}
 s = {}
-s['log10Mstar_30'] = {}
-s['log10FUV'] = {}
+
 for tag, z in zip(tags, zeds):
 
     # --- get quantities (and weights and deltas)
     D[z] = a.get_datasets(tag, quantities)
 
-    print(D[z]['Mstar_30'].shape, D[z]['SFR_50'].shape, D[z]['FUV'].shape)
-
-
     # D[z]['log10SFRinst/10'] = D[z]['log10SFR_inst_30'] - D[z]['log10SFR_10']
     D[z]['log10SFR10/50'] = D[z]['log10SFR_10'] - D[z]['log10SFR_50']
     D[z]['log10SFR50/200'] = D[z]['log10SFR_50'] - D[z]['log10SFR_200']
 
-    for x in x_:
-        s[x][z] = D[z][x]>s_limit[x]
+    s[z] = D[z][x]>s_limit[x]
 
 
 
 
-
-# ---- make plot
-
-x = 'log10Mstar_30'
 
 limits = flares_utility.limits.limits
 limits[x][0] = s_limit[x]
 
-fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, 'log10SFR50/200', s[x], limits = limits, scatter_colour_quantity = 'log10FUV', scatter_cmap = cm.inferno)
+fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, 'log10SFR50/200', s, scatter = False, limits = limits, add_weighted_range = True)
 
 for ax, z in zip(axes, zeds):
 
     # --- determine the fraction that have increasing SFHs
 
-    s = D[z]['log10Mstar_30']>9
+    s = D[z]['log10Mstar_30']>s_limit[x]
     q = D[z]['log10SFR50/200'][s]
     f = len(q[q>0.0])/len(q)
-
-    print(z, f)
-
 
     ax.text(11.2,0.6, rf'$\rm f_{{+}}={f:.2f}$', fontsize=7, ha='right')
 
 
     # --- add a line
-
     ax.axhline(0.0, color='k',lw=2, alpha=0.1)
 
 
