@@ -23,12 +23,16 @@ y = 'rlog10a'
 D = pickle.load(open('stats.p','rb'))
 D2 = pickle.load(open('moments.p','rb'))
 
+print(D[5])
+
+
 s = {}
 for z in zeds:
+    D['range'] = np.log10(D[z]['Q0.658']) - np.log10(D[z]['Q0.158'])
     s[z] = D2[z]['s']
 
 
-labels[y] = 'PCC'
+labels[y] = 'P_{6}'
 limits[y] = [-0.75,0.2]
 limits[x][0] = s_limit[x]
 

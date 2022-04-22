@@ -21,16 +21,19 @@ properties = ['mean', 'nvariance','skew','nkurtosis']
 x = 'log10Mstar_30'
 
 
-D = pickle.load(open('Z.p','rb'))
+D = pickle.load(open('moments.p','rb'))
+
+l = 'log10'
+l =''
 
 s = {}
 for z in zeds:
-    D[z]['mean'] = D[z]['moment1']
+    D[z]['mean'] = D[z]['moment1'+l]
     # D[z]['nvariance'] = D[z]['moment2']*D[z]['lambda']**2
-    D[z]['nvariance'] = D[z]['moment1']/np.sqrt(D[z]['moment2'])
+    D[z]['nvariance'] = D[z]['moment1'+l]/np.sqrt(D[z]['moment2'+l])
 
-    D[z]['skew'] = D[z]['moment3']
-    D[z]['nkurtosis'] = D[z]['moment4']-3
+    D[z]['skew'] = D[z]['moment3'+l]
+    D[z]['nkurtosis'] = D[z]['moment4'+l]-3
     s[z] = D[z]['s']
 
 

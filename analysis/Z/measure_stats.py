@@ -17,7 +17,7 @@ a = flares_utility.analyse.analyse_flares(filename, default_tags = False)
 x = 'log10Mstar_30'
 
 s_limit = 8.5
-quantiles = [0.022, 0.158, 0.5, 0.658, 0.978]
+quantiles = [0.022, 0.158, 0.5, 0.842, 0.978]
 
 quantities = []
 quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
@@ -35,7 +35,7 @@ for tag, z in zip(a.tags, a.zeds):
     # --- get particle datasets and measure properties
     pD = a.get_particle_datasets(tag)
 
-
+    D[z]['s'] = D[z][x]>s_limit
 
     # --- define the outputs
 
