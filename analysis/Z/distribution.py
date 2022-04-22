@@ -67,4 +67,4 @@ for tag, z in zip(a.tags, a.zeds):
 
 
 
-pickle.dump(D, open('distributions.p','wb'))
+pickle.dump(O, open('distributions.p','wb'))
