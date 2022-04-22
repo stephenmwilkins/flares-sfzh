@@ -18,32 +18,32 @@ quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'M
 
 
 x = 'log10Mstar_30'
-y = 'rlog10a'
+y = 'range'
 
 D = pickle.load(open('stats.p','rb'))
-D2 = pickle.load(open('moments.p','rb'))
+
 
 print(D[5])
 
 
 s = {}
 for z in zeds:
-    D['range'] = np.log10(D[z]['Q0.658']) - np.log10(D[z]['Q0.158'])
-    s[z] = D2[z]['s']
+    D[z]['range'] = np.log10(D[z]['Q0.842']/D[z]['Q0.158'])
+    print(np.median(D[z]['range']))
+    s[z] = D[z]['s']
 
 
-labels[y] = 'P_{6}'
-limits[y] = [-0.75,0.2]
+labels[y] = 'P_{84.2}-P_{15.8}'
+limits[y] = [0,3]
 limits[x][0] = s_limit[x]
 
 
 # fig, axes = flares_utility.plt.linear_redshift_mcol(D, zeds, x, properties, s, limits = limits, scatter = False, add_weighted_range = True, zevo_cmap = flares_utility.colors.redshift_cmap)
 fig, axes = flares_utility.plt.linear_redshift(D, zeds, x, y, s, limits = limits, scatter = False, add_weighted_range = True)
 
-for ax in axes:
-    ax.axhline(0.0, c='k',lw=3, alpha=0.1)
 
 
-fig.savefig(f'figs/Zr.pdf')
+
+fig.savefig(f'figs/Zrange.pdf')
 # fig.savefig(f'figs/moments.png')
 # fig.savefig(f'figs/combined_redshift_{x}.png')
