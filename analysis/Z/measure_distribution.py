@@ -29,8 +29,8 @@ O = {}
 # for tag, z in zip(a.tags, a.zeds):
 
 
-linear_bins = np.arange(0.0, 0.05, 0.001)
-log10_bins = np.arange(-5.,-1.,0.1)
+linear_bins = np.arange(0.0, 0.1, 0.001)
+log10_bins = np.arange(-5.,0.,0.1)
 
 for tag, z in zip(a.tags, a.zeds):
 
