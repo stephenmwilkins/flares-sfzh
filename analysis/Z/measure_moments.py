@@ -30,7 +30,7 @@ for tag, z in zip(a.tags, a.zeds):
     # --- get quantities (and weights and deltas)
     D[z] = a.get_datasets(tag, quantities)
 
-    print(z, len(D[z]['log10Mstar_30']), len(D[z]['log10Mstar_30'][D[z]['log10Mstar_30']>8.0]))
+    # print(z, len(D[z]['log10Mstar_30']), len(D[z]['log10Mstar_30'][D[z]['log10Mstar_30']>8.0]))
 
     # --- get particle datasets and measure properties
     pD = a.get_particle_datasets(tag)
@@ -43,7 +43,7 @@ for tag, z in zip(a.tags, a.zeds):
     for n in range(1, 5):
         D[z][f'moment{n}'] = np.zeros(len(D[z]['log10Mstar_30']))
         D[z][f'moment{n}log10'] = np.zeros(len(D[z]['log10Mstar_30']))
-
+        D[z][f'moment{n}log10b'] = np.zeros(len(D[z]['log10Mstar_30']))
 
     for i, (age, Z, massinitial, mass) in enumerate(zip(pD['S_Age'], pD['S_Z'], pD['S_MassInitial'], pD['S_Mass'])):
         if len(Z)>0:
@@ -55,6 +55,13 @@ for tag, z in zip(a.tags, a.zeds):
                 D[z][f'moment{n}'][i] =  flares_utility.stats.n_weighted_moment(Z, massinitial, n)
                 D[z][f'moment{n}log10'][i] =  flares_utility.stats.n_weighted_moment(np.log10(Z), massinitial, n)
 
+            Z[np.log10(Z)<-5] = 1E-5
+            Z[np.log10(Z)>-1] = 0.1  
+
+            for n in range(1, 5):
+                D[z][f'moment{n}log10b'][i] =  flares_utility.stats.n_weighted_moment(np.log10(Z), massinitial, n)
+
+    print(z, np.median(D[z][f'moment2']),np.median(D[z][f'moment2log10']),np.median(D[z][f'moment2log10b']))
 
     D[z]['s'] = D[z][x]>s_limit
 
