@@ -1,7 +1,0 @@
-Traceback (most recent call last):
-  File "measure_distribution_parameters.py", line 74, in <module>
-    params, _  = curve_fit(ff[dist].pdf, binc, N_obs, p0 = ff[dist].p0)
-  File "/cosma/home/dp004/dc-wilk2/python_venv/lib64/python3.6/site-packages/scipy/optimize/minpack.py", line 789, in curve_fit
-    raise RuntimeError("Optimal parameters not found: " + errmsg)
-RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev = 600.
-srun: error: m6313: task 0: Exited with exit code 1

@@ -49,7 +49,7 @@ dists = {'expon': expon(), 'halfnorm': halfnorm(), 'truncnorm': truncnorm(max_ag
 
 # dist_names = ['halfnorm', 'truncnorm']
 # dist_names = ['expon']
-dist_names = ['halfnorm', 'trunclognorm']
+dist_names = ['expon', 'halfnorm', 'truncnorm', 'trunclognorm']
 
 for dist_name in dist_names:
 
@@ -84,7 +84,6 @@ for dist_name in dist_names:
         cax.plot(x, obs_cdf, c=c, lw=1)
 
         print(log10Mstar, *params, KS)
-
 
 
 

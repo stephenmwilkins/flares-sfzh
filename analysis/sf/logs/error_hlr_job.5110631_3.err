@@ -1,2 +1,0 @@
-/cosma/home/dp004/dc-wilk2/data/flare/modules/flares_utility/flares_utility/analyse.py:150: RuntimeWarning: divide by zero encountered in log10
-  D['log10'+qid] = np.log10(D[qid])
