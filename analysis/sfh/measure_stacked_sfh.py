@@ -55,7 +55,7 @@ for tag, z in zip(a.tags, a.zeds):
         o = np.array([])
         w = np.array([])
         for i in i_:
-            w = np.concatenate((o, pD['S_MassInitial'][i]*D['weight'][i]))
+            w = np.concatenate((w, pD['S_MassInitial'][i]*D['weight'][i]))
             o = np.concatenate((o, pD['S_Age'][i]))
 
         N, _ = np.histogram(o, bins = linear_bins, weights = w)

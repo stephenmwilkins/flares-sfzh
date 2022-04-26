@@ -22,7 +22,7 @@ def lnorm(x, mu, sigma):
 
 
 
-D = pickle.load(open('distributions.p','rb'))
+D = pickle.load(open('data/stacked_Z.p','rb'))
 
 print(D.keys())
 
@@ -61,4 +61,4 @@ ax.set_xlim([-5, -1.])
 ax.set_ylim([0, 0.99])
 
 ax.legend(fontsize = 8, title = rf'$\rm \log_{{10}}(M_{{\star}}/M_{{\odot}})\in $')
-fig.savefig('figs/Z_distribution.pdf')
+fig.savefig('figs/stacked_Z.pdf')
