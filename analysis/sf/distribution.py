@@ -54,7 +54,7 @@ f = truncnorm(max_age = 1500)
 
 for (log10Mstar, N), c in zip(d.items(), colors):
 
-    label = rf'$\rm [{log10Mstar-0.25:.1f}, {log10Mstar+0.25:.1f})$'
+
 
     y = N/np.sum(N)/binw
     obs_cdf = np.cumsum(y[::-1])*10.
@@ -65,10 +65,15 @@ for (log10Mstar, N), c in zip(d.items(), colors):
     y_fit = f.pdf(binc, *params)
     fit_cdf = 1-f.cdf(x[::-1], *params)
 
+
+    KS = np.max(np.fabs(obs_cdf-fit_cdf[::-1]))
+
+    label = rf'$\rm [{log10Mstar-0.25:.1f}, {log10Mstar+0.25:.1f})\ D={KS:.3f}$'
+
     ax.plot(binc, y_fit, c=c, ls='-',lw=3,alpha=0.4)
     ax.plot(binc, y, label = label, c=c, lw=1)
 
-    KS = np.max(np.fabs(obs_cdf-fit_cdf[::-1]))
+
 
     cax.plot(x[::-1], fit_cdf, c=c, ls='-',lw=3,alpha=0.4)
     cax.plot(x, obs_cdf, c=c, lw=1)
@@ -79,11 +84,13 @@ for (log10Mstar, N), c in zip(d.items(), colors):
 
 
 ax.set_xlabel(r'$\rm age/Myr$')
-ax.set_ylabel(r'$\rm N$')
+ax.set_ylabel(r'$\rm SFR$')
 ax.set_xlim([0, 1000])
 ax.set_ylim([0, 0.0039])
 
-ax.legend(fontsize = 8, title = rf'$\rm \log_{{10}}(M_{{\star}}/M_{{\odot}})\in $')
+ax.set_yticks(np.arange(0, 0.004, 0.001))
+
+ax.legend(fontsize = 7, title = rf'$\rm \log_{{10}}(M_{{\star}}/M_{{\odot}})\in $')
 fig.savefig('figs/age_distribution.pdf')
 fig.clf()
 

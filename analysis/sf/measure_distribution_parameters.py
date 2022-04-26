@@ -38,25 +38,28 @@ quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'M
 
 iz = int(sys.argv[1])
 
+dist_name = sys.argv[2]
 
-
-ff = {'halfnorm': halfnorm(), 'truncnorm': truncnorm(max_age = 1500)}
-
+dists = {'halfnorm': halfnorm(), 'truncnorm': truncnorm(max_age = 1500)}
+dist = dists[dist_name]
 
 tag = a.tags[iz]
 z = a.zeds[iz]
 
 
+# -- temporary file
+o = h5py.File(f'data/temp_{z}_{dist_name}.h5', 'w')
+
+
 # --- get quantities (and weights and deltas)
 D = a.get_datasets(tag, quantities)
-
 pD = a.get_particle_datasets(tag)
 
 n = len(D['log10Mstar_30'])
 
-O = {}
-for dist in ['halfnorm','truncnorm']:
-    O[dist] = {'KS': np.empty(n), 'p':np.empty((n,ff[dist].nparams))}
+
+o.create_dataset('D', np.empty(n))
+o.create_dataset('p', np.empty((n, ff[dist].nparams)))
 
 
 
@@ -69,27 +72,21 @@ for i, (ages, massinitial) in enumerate(zip(pD['S_Age'], pD['S_MassInitial'])):
 
         # --- fit
 
-        for dist in ['halfnorm','truncnorm']:
+        params, _  = curve_fit(dist.pdf, binc, N_obs, p0 = dist.p0)
+        N_fit = dist.pdf(binc, *params)
+        cdf_fit = 1-dist.cdf(bins[:-1], *params)
 
-            params, _  = curve_fit(ff[dist].pdf, binc, N_obs, p0 = ff[dist].p0)
-            N_fit = ff[dist].pdf(binc, *params)
-            cdf_fit = 1-ff[dist].cdf(bins[:-1], *params)
+        KS = np.max(np.fabs(cdf_obs-cdf_fit[::-1])) # -- measure the KS
 
-            KS = np.max(np.fabs(cdf_obs-cdf_fit[::-1])) # -- measure the KS
-
-            O[dist]['KS'][i] = KS
-            O[dist]['p'][i] = params
+        o['D'][i] = KS
+        O['p'][i] = params
 
 
-            # plt.plot(binc, N_fit, ls='-',lw=3,alpha=0.4)
-            # plt.plot(binc, N_obs, lw=1)
-            # plt.savefig(f'{i}_pdf.pdf')
-            # plt.clf()
-            #
-            # plt.plot(bins[:-1], cdf_fit, ls='-',lw=3,alpha=0.4)
-            # plt.plot(bins[:-1][::-1], cdf_obs, lw=1)
-            # plt.savefig(f'{i}_cdf.pdf')
-            # plt.clf()
+
+with h5py.File('data/sf.h5', 'w') as f:
+    f.create_dataset(f'{z}/{dist_name}/D', o['D'])
+    f.create_dataset(f'{z}/{dist_name}/p', o['p'])
+
 
 
 

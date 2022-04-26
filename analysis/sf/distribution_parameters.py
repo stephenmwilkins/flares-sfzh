@@ -16,39 +16,40 @@ from load import * # loads flares_analysis as a and defined mass/luminosity limi
 quantities = []
 quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
 
-properties = ['KS','scale','loc']
+
 x = 'log10Mstar_30'
 
 
 t = 'truncnorm'
 
-D = pickle.load(open('distribution_parameters.p','rb'))
-D2 = pickle.load(open('moments_and_percentiles.p','rb'))
-
-zeds = [10.,10.,10.,10.]
-
-
 s = {}
-for z in zeds:
-    D[z][t]['scale'] =  D[z][t]['p'][:,0]
-    D[z][t]['loc'] =  D[z][t]['p'][:,1]
+D = {}
 
-    s[z] = D2[z][f'{x}_s']
+for z, tag in zip(a.zeds[:-1], a.tags):
+
+    D[z] = a.get_datasets(tag, quantities)
+
+    d = pickle.load(open(f'distribution_parameters/{z}.p','rb'))
+
+    D[z]['KS'] =  d[t]['KS']
+    D[z]['scale'] =  d[t]['p'][:,0]
+    D[z]['loc'] =  d[t]['p'][:,1]
+    s[z] = D[z][x]>8.5
 
 
-
+properties = ['KS','scale','loc']
 
 limits = flares_utility.limits.limits
 
 limits['KS'] = [0, 0.2]
-limits['scale'] = [0, 500]
-labels['loc'] = [0, 500]
+limits['scale'] = [-500, 500]
+limits['loc'] = [-500, 500]
 
 
 limits[x][0] = s_limit[x]
 
 # fig, axes = flares_utility.plt.linear_redshift_mcol(D, zeds, x, properties, s, limits = limits, scatter = False, add_weighted_range = True, zevo_cmap = flares_utility.colors.redshift_cmap)
-fig, axes = flares_utility.plt.linear_redshift_mcol(D, zeds, x, properties, s, limits = limits, scatter = False, add_weighted_range = True)
+fig, axes = flares_utility.plt.linear_redshift_mcol(D, zeds[:-1], x, properties, s, limits = limits, scatter = False, add_weighted_range = True)
 
 
 
