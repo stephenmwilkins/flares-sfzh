@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "measure_distribution_parameters.py", line 52, in <module>
+    tag = a.tags[iz]
+IndexError: list index out of range
+srun: error: m6092: task 0: Exited with exit code 1
+Traceback (most recent call last):
+  File "measure_distribution_parameters.py", line 52, in <module>
+    tag = a.tags[iz]
+IndexError: list index out of range
+srun: error: m6092: task 0: Exited with exit code 1
+Traceback (most recent call last):
+  File "measure_distribution_parameters.py", line 52, in <module>
+    tag = a.tags[iz]
+IndexError: list index out of range
+srun: error: m6092: task 0: Exited with exit code 1

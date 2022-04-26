@@ -1,6 +1,9 @@
 
 import numpy as np
+import matplotlib as mpl
 import matplotlib.cm as cm
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 
 import cmasher as cmr
 
@@ -46,7 +49,7 @@ dists = {'expon': expon(), 'halfnorm': halfnorm(), 'truncnorm': truncnorm(max_ag
 
 # dist_names = ['halfnorm', 'truncnorm']
 # dist_names = ['expon']
-dist_names = ['trunclognorm']
+dist_names = ['halfnorm', 'trunclognorm']
 
 for dist_name in dist_names:
 

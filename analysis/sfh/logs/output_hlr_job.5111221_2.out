@@ -1,0 +1,21 @@
+====
+Starting job 5111225 at Tue 26 Apr 10:10:05 BST 2022 for user dc-wilk2.
+Running on nodes: m6103
+====
+initialised cosmology
+14.0 halfnorm
+1566
+initialised cosmology
+14.0 truncnorm
+1566
+initialised cosmology
+14.0 trunclognorm
+1566
+Job done, info follows...
+       JobID    JobName  Partition     MaxRSS    Elapsed ExitCode 
+------------ ---------- ---------- ---------- ---------- -------- 
+5111221_2    FLARES_SF+     cosma6              00:00:57      0:0 
+5111221_2.e+     extern                         00:00:57      0:0 
+5111221_2.0     python3                  735K   00:00:07      0:0 
+5111221_2.1     python3                72185K   00:00:44      0:0 
+5111221_2.2     python3                  737K   00:00:04      0:0 

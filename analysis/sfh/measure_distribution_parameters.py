@@ -10,16 +10,17 @@ import sys
 import numpy as np
 import pickle
 
+import h5py
+
+
 from scipy.optimize import curve_fit
-from util import truncnorm, halfnorm
+from util import expon, truncnorm, halfnorm, trunclognorm
 
 
 binw = 10
 bins = np.arange(0.0, 1500., binw)
 binc = 0.5*(bins[:-1]+bins[1:])
 
-# f = halfnorm()
-# # f = truncnorm(max_age = 1500)
 
 import flares_utility.analyse
 import flares_utility.stats
@@ -41,10 +42,18 @@ iz = int(sys.argv[1])
 dist_name = sys.argv[2]
 
 dists = {'halfnorm': halfnorm(), 'truncnorm': truncnorm(max_age = 1500)}
+dists = {'expon': expon(), 'halfnorm': halfnorm(), 'truncnorm': truncnorm(max_age = 1500), 'trunclognorm': trunclognorm(max_age = 1500)}
+
+
+
+
 dist = dists[dist_name]
 
 tag = a.tags[iz]
 z = a.zeds[iz]
+
+print(z, dist_name)
+
 
 
 # -- temporary file
@@ -57,9 +66,10 @@ pD = a.get_particle_datasets(tag)
 
 n = len(D['log10Mstar_30'])
 
+print(n)
 
-o.create_dataset('D', np.empty(n))
-o.create_dataset('p', np.empty((n, ff[dist].nparams)))
+o.create_dataset('D', data=np.empty(n))
+o.create_dataset('p', data=np.empty((n, dist.nparams)))
 
 
 
@@ -79,15 +89,10 @@ for i, (ages, massinitial) in enumerate(zip(pD['S_Age'], pD['S_MassInitial'])):
         KS = np.max(np.fabs(cdf_obs-cdf_fit[::-1])) # -- measure the KS
 
         o['D'][i] = KS
-        O['p'][i] = params
+        o['p'][i] = params
 
 
 
 with h5py.File('data/sf.h5', 'w') as f:
-    f.create_dataset(f'{z}/{dist_name}/D', o['D'])
-    f.create_dataset(f'{z}/{dist_name}/p', o['p'])
-
-
-
-
-pickle.dump(O, open(f'distribution_parameters/{z}.p','wb'))
+    f.create_dataset(f'{z}/{dist_name}/D', data=o['D'])
+    f.create_dataset(f'{z}/{dist_name}/p', data=o['p'])
