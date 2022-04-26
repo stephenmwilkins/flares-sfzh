@@ -5,7 +5,7 @@ import flares_utility.analyse
 import flares_utility.stats
 import flares_utility.limits
 import flares_utility.plt
-import flares_utility.colors 
+# import flares_utility.colors 
 import flare.plt as fplt
 
 # ----------------------------------------------------------------------

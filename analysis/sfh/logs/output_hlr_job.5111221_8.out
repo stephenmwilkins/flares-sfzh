@@ -8,3 +8,14 @@ initialised cosmology
 initialised cosmology
 8.0 truncnorm
 82414
+initialised cosmology
+8.0 trunclognorm
+82414
+Job done, info follows...
+       JobID    JobName  Partition     MaxRSS    Elapsed ExitCode 
+------------ ---------- ---------- ---------- ---------- -------- 
+5111221_8    FLARES_SF+     cosma6              02:00:45      0:0 
+5111221_8.e+     extern                         02:00:45      0:0 
+5111221_8.0     python3               208298K   00:01:16      0:0 
+5111221_8.1     python3               218613K   01:53:31      0:0 
+5111221_8.2     python3               216281K   00:05:57      0:0 
