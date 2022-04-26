@@ -11,6 +11,7 @@ from scipy.stats import truncnorm as truncnorm_
 class halfnorm():
 
     p0 = (200)
+    nparams = 1
 
     def func(self, scale):
         return halfnorm_(scale = scale)
@@ -27,6 +28,7 @@ class halfnorm():
 class truncnorm():
 
     p0 = (0, 100)
+    nparams = 2
 
     def __init__(self, max_age = 1500):
         self.max_age = 1500.
