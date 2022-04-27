@@ -28,8 +28,8 @@ limits[x][0] = s_limit[x]
 limits['D'] = [0, 0.2]
 
 labels['halfnorm'] = 'half\ normal'
-labels['truncnorm'] = 'truncated\ normal'
-labels['trunclognorm'] = 'truncated\ log-normal'
+labels['truncnorm'] = 'truncated\ norm'
+labels['trunclognorm'] = 'truncated\ log-norm'
 
 data_sf = h5py.File('data/sf.h5','r')
 
@@ -41,7 +41,7 @@ dist_names = ['halfnorm','truncnorm', 'trunclognorm']
 s = {}
 data = {}
 
-for z in zeds:
+for z in a.zeds:
 
     data[z] = a.get_datasets(a.tag_from_zed[z], quantities)
 
@@ -49,7 +49,10 @@ for z in zeds:
 
     for dist_name in dist_names:
 
-        data[z][dist_name] =  data_sf[str(z)][dist_name]['D'][:]
+        D = data_sf[str(int(z))][dist_name]['D'][:]
+        D[D==0] = np.nan
+        data[z][dist_name] =  D
+
 
 
         # D = data[z]['D'][s[z]]
@@ -57,6 +60,6 @@ for z in zeds:
         # print(z, np.sum(s_),np.mean(D[s_]),np.median(D[s_]))
 
 
-fig, axes = flares_utility.plt.linear_redshift_comparison(data, zeds, x, dist_names, s, limits = limits, ylabel = 'D', bins = 10, ylims = ylims)
+fig, axes = flares_utility.plt.linear_redshift_comparison(data, a.zeds, x, dist_names, s, limits = limits, ylabel = 'D', bins = 10, ylims = ylims)
 
 fig.savefig(f'figs/distribution_comparison.pdf')

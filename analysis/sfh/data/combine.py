@@ -6,7 +6,7 @@ import numpy as np
 m = h5py.File('sf.h5','w')
 
 
-for z in np.arange(8.,15,1.):
+for z in np.arange(5.,15,1.):
     print(z)
     for dist_name in ['halfnorm','truncnorm','trunclognorm']:
         print(dist_name)
