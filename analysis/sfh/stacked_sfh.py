@@ -49,7 +49,7 @@ dists = {'expon': expon(), 'halfnorm': halfnorm(), 'truncnorm': truncnorm(max_ag
 
 # dist_names = ['halfnorm', 'truncnorm']
 # dist_names = ['expon']
-dist_names = ['expon', 'halfnorm', 'truncnorm', 'trunclognorm']
+dist_names = [None, 'expon', 'halfnorm', 'truncnorm', 'trunclognorm']
 
 for dist_name in dist_names:
 
@@ -57,7 +57,7 @@ for dist_name in dist_names:
     cfig, cax = fplt.simple()
 
 
-    dist = dists[dist_name]
+    if dist_name: dist = dists[dist_name]
 
     for (log10Mstar, N), c in zip(d.items(), colors):
 
@@ -66,44 +66,56 @@ for dist_name in dist_names:
 
         x = bins[:-1][::-1]
 
-        params, _  = curve_fit(dist.pdf, binc, y, p0 = dist.p0, maxfev = 20000)
-        y_fit = dist.pdf(binc, *params)
-        fit_cdf = (1-dist.cdf(x[::-1], *params))
+        if dist_name:
+
+            params, _  = curve_fit(dist.pdf, binc, y, p0 = dist.p0, maxfev = 20000)
+            y_fit = dist.pdf(binc, *params)
+            fit_cdf = (1-dist.cdf(x[::-1], *params))
+
+            KS = np.max(np.fabs(obs_cdf-fit_cdf[::-1]))
+
+            label = rf'$\rm [{log10Mstar-0.25:.1f}, {log10Mstar+0.25:.1f})\ D={KS:.3f}$'
+
+        else:
+
+            label = rf'$\rm [{log10Mstar-0.25:.1f}, {log10Mstar+0.25:.1f})$'
 
 
-        KS = np.max(np.fabs(obs_cdf-fit_cdf[::-1]))
-
-        label = rf'$\rm [{log10Mstar-0.25:.1f}, {log10Mstar+0.25:.1f})\ D={KS:.3f}$'
-
-        ax.plot(binc, y_fit, c=c, ls='-',lw=3,alpha=0.4)
+        if dist_name: ax.plot(binc, y_fit, c=c, ls='-',lw=3,alpha=0.4)
         ax.plot(binc, y, label = label, c=c, lw=1)
 
-
-
-        cax.plot(x[::-1], fit_cdf, c=c, ls='-',lw=3,alpha=0.4)
+        if dist_name: cax.plot(x[::-1], fit_cdf, c=c, ls='-',lw=3,alpha=0.4)
         cax.plot(x, obs_cdf, c=c, lw=1)
 
-        print(log10Mstar, *params, KS)
+        if dist_name: print(log10Mstar, *params, KS)
 
 
 
     ax.set_xlabel(r'$\rm age/Myr$')
-    ax.set_ylabel(r'$\rm SFR$')
-    ax.set_xlim([0, 1500])
+    ax.set_ylabel(r'$\rm SFR/M_{\star}^{tot}$')
+    ax.set_xlim([0, 1000])
     ax.set_ylim([0, 0.0039])
 
     ax.set_yticks(np.arange(0, 0.004, 0.001))
 
     ax.legend(fontsize = 7, title = rf'$\rm \log_{{10}}(M_{{\star}}/M_{{\odot}})\in $')
-    fig.savefig(f'figs/stacked_sfh_{dist_name}.pdf')
+    if dist_name:
+        fig.savefig(f'figs/stacked_sfh_{dist_name}.pdf')
+    else:
+        fig.savefig(f'figs/stacked_sfh.pdf')
     fig.clf()
 
 
     cax.set_xlabel(r'$\rm age/Myr$')
     cax.set_ylabel(r'$\rm C$')
-    cax.set_xlim([0, 1500])
+    cax.set_xlim([0, 1000])
     cax.set_ylim([0, 1.2])
 
     cax.legend(fontsize = 8, title = rf'$\rm \log_{{10}}(M_{{\star}}/M_{{\odot}})\in $')
-    cfig.savefig(f'figs/stacked_cumsfh_{dist_name}.pdf')
+
+    if dist_name:
+        cfig.savefig(f'figs/stacked_cumsfh_{dist_name}.pdf')
+    else:
+        cfig.savefig(f'figs/stacked_cumsfh.pdf')
+
     cfig.clf()
