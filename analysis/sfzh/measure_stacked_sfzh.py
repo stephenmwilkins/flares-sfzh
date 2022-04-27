@@ -29,12 +29,21 @@ O = {}
 # for tag, z in zip(a.tags, a.zeds):
 
 
-age_bins = np.arange(0., 3.5, 0.5)
-Z_bins = np.arange(-6, 0., 0.5)
+age_bins = np.arange(0., 3.5, 0.25)
+Z_bins = np.arange(-6, 0.0, 0.5)
+
+
+O['age_bins'] = age_bins
+O['Z_bins'] = Z_bins
+
+
+# a.tags = [a.tags[4]]
+# a.zeds = [a.zeds[4]]
 
 for tag, z in zip(a.tags, a.zeds):
 
     print(z, '-'*20)
+
     O[z] = {}
 
     # --- get quantities (and weights and deltas)
@@ -56,10 +65,10 @@ for tag, z in zip(a.tags, a.zeds):
         for i in i_:
 
             w = np.concatenate((w, pD['S_MassInitial'][i]*D['weight'][i]))
-            age = np.concatenate((o, pD['S_Age'][i]))
-            Z = np.concatenate((o, pD['S_Z'][i]))
+            age = np.concatenate((age, pD['S_Age'][i]))
+            Z = np.concatenate((Z, pD['S_Z'][i]))
 
-        N, _ = np.histogram2d(age, Z, bins = [age_bins, Z_bins], weights = w)
+        N, _, _ = np.histogram2d(np.log10(age), np.log10(Z), bins = [age_bins, Z_bins], weights = w)
         O[z][log10Mstar] = N
 
 
