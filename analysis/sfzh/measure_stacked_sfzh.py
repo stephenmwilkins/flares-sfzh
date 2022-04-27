@@ -29,8 +29,8 @@ O = {}
 # for tag, z in zip(a.tags, a.zeds):
 
 
-age_bins = np.arange(0., 3.5, 0.25)
-Z_bins = np.arange(-6, 0.0, 0.5)
+age_bins = np.arange(0., 3.5, 0.1)
+Z_bins = np.arange(-6, 0.0, 0.25)
 
 
 O['age_bins'] = age_bins
