@@ -5,3 +5,17 @@ Running on nodes: m6196
 initialised cosmology
 7.0 halfnorm
 124474
+initialised cosmology
+7.0 truncnorm
+124474
+initialised cosmology
+7.0 trunclognorm
+124474
+Job done, info follows...
+       JobID    JobName  Partition     MaxRSS    Elapsed ExitCode 
+------------ ---------- ---------- ---------- ---------- -------- 
+5111221_9    FLARES_SF+     cosma6              04:15:05      0:0 
+5111221_9.e+     extern                         04:15:05      0:0 
+5111221_9.0     python3               344088K   00:02:33      0:0 
+5111221_9.1     python3               349016K   04:07:53      0:0 
+5111221_9.2     python3               348432K   00:04:38      1:0 

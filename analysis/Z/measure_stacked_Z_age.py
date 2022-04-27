@@ -47,26 +47,25 @@ for tag, z in zip(a.tags, a.zeds):
         O[z][log10Mstar] = {}
         s = (np.fabs(D['log10Mstar_30']-log10Mstar)<0.25)
 
+        i_ = np.arange(len(s))[s]
+        print(log10Mstar, len(i_))
+
         for ia, (al, au) in enumerate([[0, 50],[50, 200],[200, 1000]]):
 
             # galaxy indices meeting criteria
-            i_ = np.arange(len(s))[s]
-            print(log10Mstar, len(i_))
 
             o = np.array([])
             for i in i_:
 
                 sa = (pD['S_Age'][i]>al)&(pD['S_Age'][i]<au)
 
-                print(i, np.sum(sa))
+                # print(i, np.sum(sa))
                 if np.sum(sa)>0:
                     o = np.concatenate((o, pD['S_Z'][i][sa]))
 
-
-
-            N, _ = np.histogram(np.log10(o), bins = log10_bins)
+            N, _ = np.histogram(np.log10(o), bins = bins)
             O[z][log10Mstar][ia] = N
 
 
 
-pickle.dump(O, open('data/Z_age.p','wb'))
+pickle.dump(O, open('data/stacked_Z_age.p','wb'))
