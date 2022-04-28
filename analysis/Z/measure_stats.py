@@ -20,8 +20,9 @@ quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'M
 
 
 D = {}
+O = {}
 
-for tag, z in zip(a.tags, a.zeds):
+for tag, z in zip(tags, zeds):
 
     # --- get quantities (and weights and deltas)
     D[z] = a.get_datasets(tag, quantities)
@@ -34,22 +35,16 @@ for tag, z in zip(a.tags, a.zeds):
     # --- get particle datasets and measure properties
     pD = a.get_particle_datasets(tag)
 
-    D[z]['s'] = D[z][x]>s_limit
+    O[z] = {}
 
     # --- define the outputs
 
-    D[z]['r'] = np.zeros(N)
-    D[z]['rlog10a'] = np.zeros(N)
-    D[z]['rlog10b'] = np.zeros(N)
-
-    D[z]['linregress'] = {}
-    for t in ['A','B','C']:
-        D[z]['linregress'][t] = {}
-        for t2 in ['slope', 'intercept', 'r', 'p', 'se']:
-            D[z]['linregress'][t][t2] = np.zeros(N)
+    # O[z]['r'] = np.zeros(N)
+    # O[z]['rlog10a'] = np.zeros(N)
+    # O[z]['rlog10b'] = np.zeros(N)
 
     for q in quantiles:
-        D[z][f'Q{q}'] = np.zeros(N)
+        O[z][f'Q{q}'] = np.zeros(N)
 
 
     for i, (age, Z, massinitial, mass) in enumerate(zip(pD['S_Age'], pD['S_Z'], pD['S_MassInitial'], pD['S_Mass'])):
@@ -57,16 +52,17 @@ for tag, z in zip(a.tags, a.zeds):
 
             Z[Z==0] = 1E-5
 
-            # --- measure the pearson correlation coefficient of the age/Z distribution
-            D[z]['r'][i] = pearsonr(age, Z)[0]
-            D[z]['rlog10a'][i] = pearsonr(age, np.log10(Z))[0]
-            D[z]['rlog10b'][i] = pearsonr(np.log10(age), np.log10(Z))[0]
-
+            #
+            # # --- measure the pearson correlation coefficient of the age/Z distribution
+            # D[z]['r'][i] = pearsonr(age, Z)[0]
+            # D[z]['rlog10a'][i] = pearsonr(age, np.log10(Z))[0]
+            # D[z]['rlog10b'][i] = pearsonr(np.log10(age), np.log10(Z))[0]
+            #
 
             # --- measure the quantiles of the metallicity distribution
             for q in quantiles:
-                D[z][f'Q{q}'][i] =  flares_utility.stats.weighted_quantile(Z, q, sample_weight = massinitial)
+                O[z][f'Q{q}'][i] =  flares_utility.stats.weighted_quantile(Z, q, sample_weight = massinitial)
 
 
 
-pickle.dump(D, open('stats.p','wb'))
+pickle.dump(O, open('data/quantiles.p','wb'))

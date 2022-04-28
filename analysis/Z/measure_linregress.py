@@ -18,29 +18,29 @@ quantities = []
 quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
 
 
-D = {}
+O = {}
 
-for tag, z in zip(a.tags, a.zeds):
+for tag, z in zip(tags, zeds):
 
     # --- get quantities (and weights and deltas)
-    D[z] = a.get_datasets(tag, quantities)
+    D = a.get_datasets(tag, quantities)
 
-    N = len(D[z]['log10Mstar_30'])
+    N = len(D['log10Mstar_30'])
 
-    print(z, N, len(D[z]['log10Mstar_30'][D[z]['log10Mstar_30']>8.0]))
-
+    print(z, N, len(D['log10Mstar_30'][D['log10Mstar_30']>8.0]))
 
     # --- get particle datasets and measure properties
     pD = a.get_particle_datasets(tag)
 
-    D[z]['s'] = D[z][x]>s_limit
+
 
     # --- define the outputs
 
+    O[z] = {}
     for t in ['A','B','C']:
-        D[z][t] = {}
+        O[z][t] = {}
         for t2 in ['slope', 'intercept', 'r', 'p', 'se']:
-            D[z][t][t2] = np.zeros(N)
+            O[z][t][t2] = np.zeros(N)
 
 
     for i, (age, Z, massinitial, mass) in enumerate(zip(pD['S_Age'], pD['S_Z'], pD['S_MassInitial'], pD['S_Mass'])):
@@ -51,27 +51,27 @@ for tag, z in zip(a.tags, a.zeds):
             # --- calculate the linear fit between age and log10(Z)
 
             slope, intercept, r, p, se = linregress(age, Z)
-            D[z]['A']['slope'][i] = slope
-            D[z]['A']['intercept'][i] = intercept
-            D[z]['A']['r'][i] = r
-            D[z]['A']['p'][i] = p
-            D[z]['A']['se'][i] = se
+            O[z]['A']['slope'][i] = slope
+            O[z]['A']['intercept'][i] = intercept
+            O[z]['A']['r'][i] = r
+            O[z]['A']['p'][i] = p
+            O[z]['A']['se'][i] = se
 
 
             slope, intercept, r, p, se = linregress(age, np.log10(Z))
-            D[z]['B']['slope'][i] = slope
-            D[z]['B']['intercept'][i] = intercept
-            D[z]['B']['r'][i] = r
-            D[z]['B']['p'][i] = p
-            D[z]['B']['se'][i] = se
+            O[z]['B']['slope'][i] = slope
+            O[z]['B']['intercept'][i] = intercept
+            O[z]['B']['r'][i] = r
+            O[z]['B']['p'][i] = p
+            O[z]['B']['se'][i] = se
 
             slope, intercept, r, p, se = linregress(np.log10(age), np.log10(Z))
-            D[z]['C']['slope'][i] = slope
-            D[z]['C']['intercept'][i] = intercept
-            D[z]['C']['r'][i] = r
-            D[z]['C']['p'][i] = p
-            D[z]['C']['se'][i] = se
+            O[z]['C']['slope'][i] = slope
+            O[z]['C']['intercept'][i] = intercept
+            O[z]['C']['r'][i] = r
+            O[z]['C']['p'][i] = p
+            O[z]['C']['se'][i] = se
 
 
 
-pickle.dump(D, open('data/linregress.p','wb'))
+pickle.dump(O, open('data/linregress.p','wb'))
