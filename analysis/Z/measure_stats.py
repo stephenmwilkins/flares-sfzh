@@ -46,6 +46,7 @@ for tag, z in zip(a.tags, a.zeds):
     D[z]['rlog10a'] = np.zeros(N)
     D[z]['rlog10b'] = np.zeros(N)
 
+    D[z]['linregress'] = {}
     for t in ['A','B','C']:
         D[z]['linregress'][t] = np.zeros((N,6))
 
