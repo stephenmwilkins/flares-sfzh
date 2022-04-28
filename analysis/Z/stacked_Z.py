@@ -52,7 +52,7 @@ for (log10Mstar, N), c in zip(d.items(), colors):
 
 
 
-ax.set_xlabel(r'$\rm \log_{10}(Z)$')
+ax.set_xlabel(r'$\rm \log_{10}(Z_{\star})$')
 ax.set_ylabel(r'$\rm N$')
 ax.set_xlim([-5, -1.])
 ax.set_ylim([0, 0.99])

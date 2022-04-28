@@ -28,7 +28,7 @@ for z in zeds:
     s[z] = D2[z]['s']
 
 
-labels[y] = 'PCC'
+labels[y] = 'r'
 limits[y] = [-0.75,0.2]
 limits[x][0] = s_limit[x]
 

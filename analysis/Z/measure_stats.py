@@ -5,7 +5,7 @@ import pickle
 import flares_utility.analyse
 import flares_utility.stats
 
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, linregress
 
 filename = flares_utility.analyse.flares_master_file
 
@@ -30,7 +30,10 @@ for tag, z in zip(a.tags, a.zeds):
     # --- get quantities (and weights and deltas)
     D[z] = a.get_datasets(tag, quantities)
 
-    print(z, len(D[z]['log10Mstar_30']), len(D[z]['log10Mstar_30'][D[z]['log10Mstar_30']>8.0]))
+    N = len(D[z]['log10Mstar_30'])
+
+    print(z, N, len(D[z]['log10Mstar_30'][D[z]['log10Mstar_30']>8.0]))
+
 
     # --- get particle datasets and measure properties
     pD = a.get_particle_datasets(tag)
@@ -39,12 +42,15 @@ for tag, z in zip(a.tags, a.zeds):
 
     # --- define the outputs
 
-    D[z]['r'] = np.zeros(len(D[z]['log10Mstar_30']))
-    D[z]['rlog10a'] = np.zeros(len(D[z]['log10Mstar_30']))
-    D[z]['rlog10b'] = np.zeros(len(D[z]['log10Mstar_30']))
+    D[z]['r'] = np.zeros(N)
+    D[z]['rlog10a'] = np.zeros(N)
+    D[z]['rlog10b'] = np.zeros(N)
+
+    for t in ['A','B','C']:
+        D[z]['linregress'][t] = np.zeros((N,6))
 
     for q in quantiles:
-        D[z][f'Q{q}'] = np.zeros(len(D[z]['log10Mstar_30']))
+        D[z][f'Q{q}'] = np.zeros(N)
 
 
     for i, (age, Z, massinitial, mass) in enumerate(zip(pD['S_Age'], pD['S_Z'], pD['S_MassInitial'], pD['S_Mass'])):
@@ -56,6 +62,13 @@ for tag, z in zip(a.tags, a.zeds):
             D[z]['r'][i] = pearsonr(age, Z)[0]
             D[z]['rlog10a'][i] = pearsonr(age, np.log10(Z))[0]
             D[z]['rlog10b'][i] = pearsonr(np.log10(age), np.log10(Z))[0]
+
+            # --- calculate the linear fit between age and log10(Z)
+
+            D[z]['linregress']['A'] = linregress(age, Z)
+            D[z]['linregress']['B'] = linregress(age, np.log10(Z))
+            D[z]['linregress']['C'] = linregress(np.log10(age), np.log10(Z))
+
 
             # --- measure the quantiles of the metallicity distribution
             for q in quantiles:

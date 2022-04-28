@@ -15,11 +15,11 @@ quantities = []
 
 # quantities.append({'path': 'Galaxy', 'dataset': 'Mstar_30', 'name': None, 'log10': True})
 quantities.append({'path': 'Galaxy/Mstar_aperture', 'dataset': f'30', 'name': 'Mstar_30', 'log10': True})
-quantities.append({'path': 'Galaxy/Metallicity/', 'dataset': f'MassWeightedStellarZ', 'name': None, 'log10': True})
+quantities.append({'path': 'Galaxy/Metallicity/', 'dataset': f'MassWeightedStellarZ', 'name': 'Zstar', 'log10': True})
 
 
 x = 'log10Mstar_30'
-y = 'log10MassWeightedStellarZ'
+y = 'log10Zstar'
 
 D = {}
 s = {}
@@ -40,8 +40,6 @@ for tag, z in zip(tags, zeds):
     D[z]['ldelta'] = np.log10(1+D[z]['delta'])
 
 
-
-labels['log10MassWeightedStellarZ'] = 'log_{10}(Z)'
 
 limits = flares_utility.limits.limits
 limits[x][0] = s_limit[x]

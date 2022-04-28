@@ -33,8 +33,8 @@ for z in zeds:
     s[z] = D[z]['s']
 
 
-labels[y] = 'P_{84.2}-P_{15.8}'
-limits[y] = [0,3]
+labels[y] = r'(P_{84.2}-P_{15.8})'
+limits[y] = [0.5,2.5]
 limits[x][0] = s_limit[x]
 
 
