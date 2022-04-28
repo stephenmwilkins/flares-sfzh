@@ -40,11 +40,12 @@ for tag, z in zip(a.tags, a.zeds):
 
 
     for i, (age, Z, massinitial, mass) in enumerate(zip(pD['S_Age'], pD['S_Z'], pD['S_MassInitial'], pD['S_Mass'])):
-        if len(Z)>0:
+
+        s = age<10
+
+        if len(Z[s])>1:
 
             Z[Z==0] = 1E-6
-
-            s = age<10
 
             O[z][i] =  flares_utility.stats.weighted_median(Z[s], massinitial[s])
 
