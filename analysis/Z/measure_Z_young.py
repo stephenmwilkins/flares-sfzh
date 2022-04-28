@@ -52,4 +52,4 @@ for tag, z in zip(a.tags, a.zeds):
 
 
 
-pickle.dump(D, open('data/young.p','wb'))
+pickle.dump(O, open('data/young.p','wb'))
