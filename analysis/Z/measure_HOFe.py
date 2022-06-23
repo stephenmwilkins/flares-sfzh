@@ -32,21 +32,34 @@ for tag, z in zip(a.tags, a.zeds):
     # print(z, len(D[z]['log10Mstar_30']), len(D[z]['log10Mstar_30'][D[z]['log10Mstar_30']>8.0]))
 
     # --- get particle datasets and measure properties
-    P = a.get_particle_datasets(tag, quantities = ['S_Mass', 'S_Abundance_Oxygen', 'S_Abundance_Iron', 'S_Abundance_Hydrogen'])
+    P = a.get_particle_datasets(tag, quantities = ['S_Age', 'S_Mass', 'S_Abundance_Oxygen', 'S_Abundance_Iron', 'S_Abundance_Hydrogen'])
 
     # --- define the outputs
 
     outputs[z] = {}
-    outputs[z]['H'] = np.zeros(len(D[z]['log10Mstar_30']))
-    outputs[z]['Fe'] = np.zeros(len(D[z]['log10Mstar_30']))
-    outputs[z]['O'] = np.zeros(len(D[z]['log10Mstar_30']))
+
+    outputs[z]['all']= {}
+    outputs[z]['all']['H'] = np.zeros(len(D[z]['log10Mstar_30']))
+    outputs[z]['all']['Fe'] = np.zeros(len(D[z]['log10Mstar_30']))
+    outputs[z]['all']['O'] = np.zeros(len(D[z]['log10Mstar_30']))
+
+    outputs[z]['young']= {}
+    outputs[z]['young']['H'] = np.zeros(len(D[z]['log10Mstar_30']))
+    outputs[z]['young']['Fe'] = np.zeros(len(D[z]['log10Mstar_30']))
+    outputs[z]['young']['O'] = np.zeros(len(D[z]['log10Mstar_30']))
 
 
-    for i, (H, O, Fe, mass) in enumerate(zip(P['S_Abundance_Hydrogen'], P['S_Abundance_Oxygen'], P['S_Abundance_Iron'], P['S_Mass'])):
+    for i, (age, H, O, Fe, mass) in enumerate(zip(P['S_Age'], P['S_Abundance_Hydrogen'], P['S_Abundance_Oxygen'], P['S_Abundance_Iron'], P['S_Mass'])):
 
         if len(mass)>1:
-            outputs[z]['H'][i] = np.sum(mass*H)/np.sum(mass)
-            outputs[z]['O'][i] = np.sum(mass*O)/np.sum(mass)
-            outputs[z]['Fe'][i] = np.sum(mass*Fe)/np.sum(mass)
+            outputs[z]['all']['H'][i] = np.sum(mass*H)/np.sum(mass)
+            outputs[z]['all']['O'][i] = np.sum(mass*O)/np.sum(mass)
+            outputs[z]['all']['Fe'][i] = np.sum(mass*Fe)/np.sum(mass)
+
+        s = age<10
+        if np.sum(s)>1:
+            outputs[z]['young']['H'][i] = np.sum(mass[s]*H[s])/np.sum(mass[s])
+            outputs[z]['young']['O'][i] = np.sum(mass[s]*O[s])/np.sum(mass[s])
+            outputs[z]['young']['Fe'][i] = np.sum(mass[s]*Fe[s])/np.sum(mass[s])
 
 pickle.dump(outputs, open('data/HOFe.p','wb'))
